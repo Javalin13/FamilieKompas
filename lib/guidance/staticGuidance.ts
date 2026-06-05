@@ -91,7 +91,7 @@ function buildPersonalGreeting(context: ConversationContext) {
 
 function buildAcknowledgement(context: ConversationContext, firstMessage: string) {
   if (context.perspective) {
-    return `Wat ik geloof dat je nu draagt: ${context.perspective}`;
+    return "Wat ik geloof dat je nu draagt: niet alleen de zorg over wat er gebeurt, maar ook de last van moeten blijven zoeken terwijl je draagkracht al onder druk staat.";
   }
 
   const concerns =
@@ -108,7 +108,7 @@ function buildAcknowledgement(context: ConversationContext, firstMessage: string
 
 function buildImportant(context: ConversationContext) {
   if (context.patterns.includes("school-gedrag-spanningsveld") && context.patterns.includes("zorgdrager-overbelasting")) {
-    return "Onder de oppervlakte lijken er twee vragen door elkaar te lopen: wat heeft je kind nodig, en hoeveel kun jij nog alleen blijven dragen? Als alle aandacht alleen naar het gedrag gaat, blijft jouw overbelasting onzichtbaar. Als alle aandacht alleen naar jouw uitputting gaat, blijft de vraag wat je kind nodig heeft liggen. De eerste helderheid zit in die twee sporen uit elkaar halen.";
+    return "Onder de oppervlakte lijken er twee vragen door elkaar te lopen: wat vraagt deze situatie van je kind, en hoeveel kun jij nog alleen blijven dragen? Het eerste verdient aandacht, maar het tweede bepaalt of je die aandacht ook kunt blijven geven. De eerste helderheid zit in die twee sporen uit elkaar halen.";
   }
 
   if (context.patterns.includes("isolatie-of-steunnetwerkgat")) {
@@ -132,7 +132,7 @@ function buildPracticalUrgency(context: ConversationContext) {
       context.servicesContacted.length > 0
         ? ` Je noemde al contact met: ${context.servicesContacted.join(", ")}.`
         : "";
-    return `Praktisch is belangrijk dat je niet opnieuw vanaf nul moet beginnen. Je hebt al geprobeerd: ${context.attemptedActions.join(" / ")}.${contacted} Zet dat kort onder elkaar, zodat de volgende gesprekspartner meteen ziet dat er al beweging is geweest.`;
+    return `Praktisch verdient vooral aandacht dat je niet opnieuw vanaf nul moet beginnen. Je hebt al geprobeerd: ${context.attemptedActions.join(" / ")}.${contacted} Zet dat kort onder elkaar, niet als bewijs dat je genoeg deed, maar om de volgende persoon sneller te laten begrijpen waar je vastloopt.`;
   }
 
   return "Praktisch is de eerste urgentie niet om alles op te lossen, maar om een eerste gesprekspartner te kiezen. Denk aan school, huisarts, CAW, Opvoedingslijn of iemand uit je netwerk die rustig kan meedenken.";
@@ -188,7 +188,7 @@ function buildMonitor(context: ConversationContext) {
 
 function buildOneThingNotToCarryAlone(context: ConversationContext) {
   if (context.patterns.includes("school-gedrag-spanningsveld")) {
-    return "Draag het schoolstuk niet alleen. Vraag school niet alleen om te zeggen wat moeilijk loopt, maar ook om mee te denken over de eerstvolgende haalbare ondersteuning.";
+    return "Draag het schoolstuk niet alleen. Vraag niet alleen wat moeilijk loopt, maar ook wie mee kan kijken naar de eerstvolgende haalbare ondersteuning.";
   }
 
   if (context.patterns.includes("zorgdrager-overbelasting")) {
@@ -200,7 +200,7 @@ function buildOneThingNotToCarryAlone(context: ConversationContext) {
 
 function buildNextQuestion(context: ConversationContext) {
   if (context.patterns.includes("school-gedrag-spanningsveld") && context.patterns.includes("zorgdrager-overbelasting")) {
-    return "Welke vraag vraagt eerst aandacht: wat heeft je kind nodig op school, of welke steun heb jij nodig om dit gesprek rustig te kunnen voeren?";
+    return "Welke steun zou maken dat je dit gesprek niet meer vanuit uitputting hoeft te voeren?";
   }
 
   if (context.patterns.includes("isolatie-of-steunnetwerkgat")) {

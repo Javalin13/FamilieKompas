@@ -1,4 +1,5 @@
 import { FeedbackPlaceholder } from "@/components/feedback/FeedbackPlaceholder";
+import { FollowUpRequest } from "@/components/follow-up/FollowUpRequest";
 import { ResourceList } from "@/components/resources/ResourceList";
 import { PageShell } from "@/components/ui/PageShell";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -57,6 +58,18 @@ export default async function ResultaatPage({
   const questions = resultJson.questions ?? [];
   const boundaries = resultJson.boundaries ?? [];
   const resources = resultJson.resources ?? [];
+  const keyThemes = [
+    resultJson.emotionalImportant,
+    resultJson.practicalUrgent,
+    resultJson.oneThingNotToCarryAlone
+  ]
+    .filter(Boolean)
+    .join(" | ");
+  const urgencyLevel =
+    resultJson.whenToSeekHelp?.toLowerCase().includes("onveilig") ||
+    resultJson.whenToSeekHelp?.toLowerCase().includes("draagkracht op")
+      ? "middel"
+      : "laag";
 
   return (
     <PageShell>
@@ -152,6 +165,13 @@ export default async function ResultaatPage({
           </section>
 
           <FeedbackPlaceholder sessionId={result.session_id} guidanceResultId={result.id} />
+          <FollowUpRequest
+            sessionId={result.session_id}
+            guidanceResultId={result.id}
+            keyThemes={keyThemes}
+            urgencyLevel={urgencyLevel}
+            suggestedNextStep={resultJson.oneThingNotToCarryAlone ?? "Bekijk of opvolging passend is."}
+          />
         </div>
       </section>
     </PageShell>

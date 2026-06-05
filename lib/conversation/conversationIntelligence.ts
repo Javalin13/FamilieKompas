@@ -51,9 +51,7 @@ function buildValidation(context: ConversationContext) {
 
 function buildUnderstanding(context: ConversationContext) {
   if (hasPattern(context, "school-gedrag-spanningsveld") && hasPattern(context, "zorgdrager-overbelasting")) {
-    const child = context.childRole ? `je ${context.childRole}` : "je kind";
-    const age = context.childAges.length > 0 ? ` van ${context.childAges.join(", ")}` : "";
-    return `Wat ik begrijp: school kijkt naar het gedrag van ${child}${age}, maar voor jou gaat het ook over hoe lang je deze zoektocht nog bijna alleen kunt blijven dragen.`;
+    return "Wat ik begrijp: er ligt druk vanuit school, maar de zwaardere laag lijkt dat jij ondertussen moet blijven functioneren terwijl je nog niet weet wie er echt naast je staat.";
   }
 
   if (hasPattern(context, "isolatie-of-steunnetwerkgat")) {
@@ -73,7 +71,7 @@ function buildUnderstanding(context: ConversationContext) {
 
 function buildInterpretation(context: ConversationContext) {
   if (context.perspective) {
-    return context.perspective;
+    return context.perspective.replace("Wat opvalt: ", "Een mogelijke manier om hiernaar te kijken: ");
   }
 
   if (context.emotionalSignals.includes("schuldgevoel") || context.emotionalSignals.includes("schaamte")) {
@@ -90,7 +88,7 @@ function buildInterpretation(context: ConversationContext) {
 function buildReflectionQuestion(context: ConversationContext, mode: EmpathicMode) {
   if (hasPattern(context, "zorgdrager-overbelasting") && hasPattern(context, "school-gedrag-spanningsveld")) {
     return mode === "listen"
-      ? "Wat doet het meest pijn in deze situatie: de zorgen rond je kind, of het gevoel dat jij dit allemaal moet blijven dragen?"
+      ? "Wat zou het meeste opluchten als het morgen een beetje lichter werd: meer duidelijkheid rond je kind, of meer steun rond jou?"
       : "Wat maakt je op dit moment het meest bang: wat dit betekent voor je kind, of hoe lang jij dit nog alleen kan blijven dragen?";
   }
 

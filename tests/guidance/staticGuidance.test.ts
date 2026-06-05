@@ -19,6 +19,7 @@ assert.ok(result.firstStep.length > 20);
 assert.ok(result.steps.length >= 3);
 assert.ok(result.oneThingNotToCarryAlone.length > 20);
 assert.ok(result.nextQuestion.length > 20);
+assert.ok(result.nextQuestion.includes("steun") || result.nextQuestion.includes("richting"));
 assert.ok(result.monitor.length > 20);
 assert.ok(result.whenToSeekHelp.includes("zelfmoordgedachten"));
 assert.ok(result.questions.length >= 3);

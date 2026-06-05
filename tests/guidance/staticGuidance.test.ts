@@ -13,6 +13,7 @@ const result = buildStaticGuidanceResult({
 assert.equal(result.title, "Je eerste rustige overzicht");
 assert.ok(result.summary.length > 20);
 assert.ok(result.emotionalImportant.includes("draagkracht") || result.emotionalImportant.includes("onduidelijkheid"));
+assert.ok(result.attentionFirst.length > 20);
 assert.ok(result.practicalUrgent.length > 20);
 assert.ok(result.canWait.length > 20);
 assert.ok(result.firstStep.length > 20);

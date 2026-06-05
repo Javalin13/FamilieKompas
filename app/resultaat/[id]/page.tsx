@@ -9,6 +9,7 @@ type GuidanceResultJson = {
   personalGreeting?: string;
   summary?: string;
   emotionalImportant?: string;
+  attentionFirst?: string;
   practicalUrgent?: string;
   canWait?: string;
   firstStep?: string;
@@ -82,18 +83,18 @@ export default async function ResultaatPage({
 
         <div className="mt-8 space-y-5">
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5 shadow-soft">
-            <h2 className="text-lg font-semibold">Wat ik geloof dat je nu draagt</h2>
+            <h2 className="text-lg font-semibold">Wat ik denk dat er gebeurt</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{result.summary}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Wat onder de oppervlakte belangrijk lijkt</h2>
+            <h2 className="text-lg font-semibold">Wat nu het moeilijkst lijkt</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.emotionalImportant}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Wat lijkt praktisch dringend?</h2>
-            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.practicalUrgent}</p>
+            <h2 className="text-lg font-semibold">Wat eerst aandacht verdient</h2>
+            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.attentionFirst}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
@@ -102,7 +103,7 @@ export default async function ResultaatPage({
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Een zachte stap voor vandaag</h2>
+            <h2 className="text-lg font-semibold">Een stap voor deze week</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.firstStep}</p>
           </section>
 
@@ -121,7 +122,7 @@ export default async function ResultaatPage({
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Een vraag die richting kan geven</h2>
+            <h2 className="text-lg font-semibold">Een ding om te onthouden</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.nextQuestion}</p>
           </section>
 

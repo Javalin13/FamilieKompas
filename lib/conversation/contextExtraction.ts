@@ -13,9 +13,13 @@ export type ConversationContext = {
   servicesContacted: string[];
   emotionalState?: string;
   emotionalSignals: string[];
+  pressureSources: string[];
   attemptedActions: string[];
   desiredOutcome?: string;
+  underlyingNeeds: string[];
   keyConcerns: string[];
+  narrativeThemes: string[];
+  centralQuestion?: string;
   patterns: string[];
   perspective?: string;
   mode: ConversationMode;
@@ -101,6 +105,33 @@ const concernTerms = [
   { term: "achterstand", value: "ontwikkeling of leerachterstand" },
   { term: "geld", value: "financiele druk" },
   { term: "woning", value: "woonstress" }
+];
+
+const pressureTerms = [
+  { term: "school", value: "schooldruk" },
+  { term: "leerkracht", value: "schoolcommunicatie" },
+  { term: "geld", value: "financiele druk" },
+  { term: "factuur", value: "financiele druk" },
+  { term: "woning", value: "woonstress" },
+  { term: "werk", value: "werkdruk" },
+  { term: "scheiding", value: "relatieconflict" },
+  { term: "co-ouder", value: "co-ouderschapsdruk" },
+  { term: "gezondheid", value: "gezondheidsdruk" },
+  { term: "niemand", value: "sociale isolatie" },
+  { term: "alleen", value: "sociale isolatie" }
+];
+
+const needTerms = [
+  { term: "weet niet", value: "richting" },
+  { term: "wat moet ik doen", value: "richting" },
+  { term: "structuur", value: "structuur" },
+  { term: "overzicht", value: "structuur" },
+  { term: "gerust", value: "geruststelling" },
+  { term: "helpen", value: "steun" },
+  { term: "steun", value: "steun" },
+  { term: "opgelucht", value: "verlichting" },
+  { term: "luisteren", value: "validatie" },
+  { term: "begrijpt", value: "erkenning" }
 ];
 
 function unique(values: string[]) {
@@ -227,6 +258,7 @@ function buildPatterns(input: {
   normalized: string;
   emotionalSignals: string[];
   keyConcerns: string[];
+  pressureSources: string[];
   supportNetwork?: string;
   servicesContacted: string[];
   attemptedActions: string[];
@@ -258,10 +290,61 @@ function buildPatterns(input: {
       : null,
     input.normalized.includes("weet niet") || input.normalized.includes("wat moet ik doen")
       ? "beslissingsverlamming"
+      : null,
+    input.pressureSources.length > 1 && input.emotionalSignals.length > 0
+      ? "meervoudige-druk"
       : null
   ].filter((pattern): pattern is string => Boolean(pattern));
 
   return unique(patterns);
+}
+
+function buildNarrativeThemes(input: {
+  patterns: string[];
+  emotionalSignals: string[];
+  pressureSources: string[];
+  supportNetwork?: string;
+}) {
+  return unique([
+    input.patterns.includes("zorgdrager-overbelasting") ? "alles alleen dragen" : "",
+    input.patterns.includes("school-gedrag-spanningsveld") ? "zorgen over kind en school" : "",
+    input.patterns.includes("isolatie-of-steunnetwerkgat") || input.supportNetwork ? "gebrek aan steun" : "",
+    input.patterns.includes("beslissingsverlamming") ? "verlies van richting" : "",
+    input.pressureSources.length > 1 ? "druk van meerdere kanten" : "",
+    input.emotionalSignals.includes("angst") ? "angst voor wat dit betekent" : "",
+    input.emotionalSignals.includes("schuldgevoel") || input.emotionalSignals.includes("schaamte")
+      ? "twijfel aan zichzelf"
+      : ""
+  ]);
+}
+
+function buildCentralQuestion(input: {
+  patterns: string[];
+  emotionalSignals: string[];
+  supportNetwork?: string;
+  keyConcerns: string[];
+}) {
+  if (input.patterns.includes("school-gedrag-spanningsveld") && input.emotionalSignals.includes("uitputting")) {
+    return "Kan ik mijn kind helpen zonder hier zelf aan onderdoor te gaan?";
+  }
+
+  if (input.patterns.includes("isolatie-of-steunnetwerkgat") || input.supportNetwork?.includes("geen")) {
+    return "Sta ik hier alleen voor?";
+  }
+
+  if (input.emotionalSignals.includes("schuldgevoel") || input.emotionalSignals.includes("schaamte")) {
+    return "Doe ik iets verkeerd, of vraagt deze situatie meer steun dan ik alleen kan geven?";
+  }
+
+  if (input.patterns.includes("beslissingsverlamming")) {
+    return "Wat is nu de eerste stap die genoeg is?";
+  }
+
+  if (input.keyConcerns.length > 0) {
+    return "Wat vraagt nu eerst aandacht, en wat mag nog even wachten?";
+  }
+
+  return undefined;
 }
 
 function buildPerspective(input: {
@@ -306,7 +389,11 @@ function buildContextSummary(context: Omit<ConversationContext, "summary">, fall
     context.childAges.length > 0 ? `Leeftijd kind(eren): ${context.childAges.join(", ")}` : null,
     context.peopleInvolved.length > 0 ? `Betrokkenen: ${context.peopleInvolved.join(", ")}` : null,
     context.servicesContacted.length > 0 ? `Contacten/diensten: ${context.servicesContacted.join(", ")}` : null,
+    context.pressureSources.length > 0 ? `Drukbronnen: ${context.pressureSources.join(", ")}` : null,
+    context.underlyingNeeds.length > 0 ? `Onderliggende noden: ${context.underlyingNeeds.join(", ")}` : null,
     context.keyConcerns.length > 0 ? `Belangrijke zorgen: ${context.keyConcerns.join(", ")}` : null,
+    context.narrativeThemes.length > 0 ? `Narratieve thema's: ${context.narrativeThemes.join(", ")}` : null,
+    context.centralQuestion ? `Centrale vraag: ${context.centralQuestion}` : null,
     context.patterns.length > 0 ? `Patronen: ${context.patterns.join(", ")}` : null,
     context.perspective ? `Perspectief: ${context.perspective}` : null,
     context.emotionalState ? `Emotionele druk: ${context.emotionalState}` : null,
@@ -328,6 +415,8 @@ export function extractConversationContext(messages: ConversationMessage[]): Con
   const mode = inferMode(normalized);
   const emotionalSignals = unique(emotionalTerms.filter(({ term }) => normalized.includes(term)).map(({ value }) => value));
   const keyConcerns = unique(concernTerms.filter(({ term }) => normalized.includes(term)).map(({ value }) => value));
+  const pressureSources = unique(pressureTerms.filter(({ term }) => normalized.includes(term)).map(({ value }) => value));
+  const underlyingNeeds = unique(needTerms.filter(({ term }) => normalized.includes(term)).map(({ value }) => value));
   const servicesContacted = unique(serviceTerms.filter((term) => normalized.includes(term)));
   const supportNetwork = extractSupportNetwork(normalized);
   const attemptedActions = unique(extractAttemptedActions(userText));
@@ -335,9 +424,16 @@ export function extractConversationContext(messages: ConversationMessage[]): Con
     normalized,
     emotionalSignals,
     keyConcerns,
+    pressureSources,
     supportNetwork,
     servicesContacted,
     attemptedActions
+  });
+  const narrativeThemes = buildNarrativeThemes({
+    patterns,
+    emotionalSignals,
+    pressureSources,
+    supportNetwork
   });
   const contextWithoutSummary = {
     preferredName: extractPreferredName(userText),
@@ -352,9 +448,18 @@ export function extractConversationContext(messages: ConversationMessage[]): Con
     servicesContacted,
     emotionalState: firstValueMatch(normalized, emotionalTerms),
     emotionalSignals,
+    pressureSources,
     attemptedActions,
     desiredOutcome: extractDesiredOutcome(userText),
+    underlyingNeeds,
     keyConcerns,
+    narrativeThemes,
+    centralQuestion: buildCentralQuestion({
+      patterns,
+      emotionalSignals,
+      supportNetwork,
+      keyConcerns
+    }),
     patterns,
     perspective: buildPerspective({
       parentRole,

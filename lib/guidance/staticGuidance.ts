@@ -31,9 +31,12 @@ function buildFallbackContext(answers: ConversationAnswers): ConversationContext
     servicesContacted: [],
     emotionalState: clean(answers.hardest),
     emotionalSignals: clean(answers.hardest) ? [String(clean(answers.hardest))] : [],
+    pressureSources: [],
     attemptedActions: clean(answers.tried) ? [String(clean(answers.tried))] : [],
     desiredOutcome: clean(answers.support),
+    underlyingNeeds: [],
     keyConcerns: [],
+    narrativeThemes: [],
     patterns: [],
     mode: "structuur",
     summary: clean(answers.situation) ?? "Je beschrijft een situatie die nu moeilijk of onduidelijk aanvoelt."
@@ -106,6 +109,18 @@ function buildAcknowledgement(context: ConversationContext, firstMessage: string
   return `Wat ik geloof dat je nu draagt: ${firstMessage}${concerns}${emotional}`;
 }
 
+function buildWhatIsHappening(context: ConversationContext, firstMessage: string) {
+  if (context.centralQuestion) {
+    return `Wat ik denk dat hier gebeurt: onder de feiten zit vooral deze vraag: ${context.centralQuestion}`;
+  }
+
+  if (context.narrativeThemes.length > 0) {
+    return `Wat ik denk dat hier gebeurt: ${context.narrativeThemes.slice(0, 2).join(" en ")} lopen door elkaar.`;
+  }
+
+  return buildAcknowledgement(context, firstMessage);
+}
+
 function buildImportant(context: ConversationContext) {
   if (context.patterns.includes("school-gedrag-spanningsveld") && context.patterns.includes("zorgdrager-overbelasting")) {
     return "Onder de oppervlakte lijken er twee vragen door elkaar te lopen: wat vraagt deze situatie van je kind, en hoeveel kun jij nog alleen blijven dragen? Het eerste verdient aandacht, maar het tweede bepaalt of je die aandacht ook kunt blijven geven. De eerste helderheid zit in die twee sporen uit elkaar halen.";
@@ -124,6 +139,22 @@ function buildImportant(context: ConversationContext) {
   }
 
   return "Onder de oppervlakte lijkt vooral de onduidelijkheid zwaar te wegen: wat moet eerst, wie kan helpen, en wat mag even blijven liggen. Die onduidelijkheid kan op zichzelf al veel energie vragen.";
+}
+
+function buildAttentionFirst(context: ConversationContext) {
+  if (context.patterns.includes("zorgdrager-overbelasting")) {
+    return "Wat eerst aandacht verdient, is niet een perfect plan maar het verminderen van wat jij alleen draagt. Zonder dat blijft elke volgende stap zwaarder dan nodig.";
+  }
+
+  if (context.patterns.includes("school-gedrag-spanningsveld")) {
+    return "Wat eerst aandacht verdient, is het uit elkaar halen van schooldruk, kindnoden en ouderbelasting. Anders wordt alles een grote knoop.";
+  }
+
+  if (context.underlyingNeeds.includes("richting")) {
+    return "Wat eerst aandacht verdient, is richting: een kleine keuze die genoeg is voor deze week.";
+  }
+
+  return "Wat eerst aandacht verdient, is helder krijgen wat vandaag verlichting brengt en wat nog niet hoeft.";
 }
 
 function buildPracticalUrgency(context: ConversationContext) {
@@ -217,8 +248,9 @@ export function buildStaticGuidanceResult(input: GuidanceInput) {
   return {
     title: "Je eerste rustige overzicht",
     personalGreeting: buildPersonalGreeting(context),
-    summary: buildAcknowledgement(context, firstMessage),
+    summary: buildWhatIsHappening(context, firstMessage),
     emotionalImportant: buildImportant(context),
+    attentionFirst: buildAttentionFirst(context),
     practicalUrgent: buildPracticalUrgency(context),
     canWait: buildCanWait(context),
     firstStep: buildFirstStep(context),

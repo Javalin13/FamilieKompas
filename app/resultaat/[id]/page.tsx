@@ -12,6 +12,8 @@ type GuidanceResultJson = {
   canWait?: string;
   firstStep?: string;
   steps?: string[];
+  oneThingNotToCarryAlone?: string;
+  nextQuestion?: string;
   monitor?: string;
   whenToSeekHelp?: string;
   questions?: string[];
@@ -98,6 +100,16 @@ export default async function ResultaatPage({
                 <li key={step}>{step}</li>
               ))}
             </ol>
+          </section>
+
+          <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+            <h2 className="text-lg font-semibold">Een ding dat je niet alleen hoeft te dragen</h2>
+            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.oneThingNotToCarryAlone}</p>
+          </section>
+
+          <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+            <h2 className="text-lg font-semibold">Een vraag die richting kan geven</h2>
+            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.nextQuestion}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">

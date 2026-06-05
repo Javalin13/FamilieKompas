@@ -3,13 +3,21 @@ export type ConversationMode = "verhaal" | "structuur" | "stappen" | "onbekend";
 export type ConversationContext = {
   preferredName?: string;
   parentRole?: string;
+  childRole?: string;
   childAges: string[];
   familySituation?: string;
+  supportNetwork?: string;
+  relationshipStatus?: string;
+  custodySituation?: string;
   peopleInvolved: string[];
+  servicesContacted: string[];
   emotionalState?: string;
+  emotionalSignals: string[];
   attemptedActions: string[];
   desiredOutcome?: string;
   keyConcerns: string[];
+  patterns: string[];
+  perspective?: string;
   mode: ConversationMode;
   summary: string;
 };
@@ -47,19 +55,38 @@ const peopleTerms = [
   "huisarts"
 ];
 
+const serviceTerms = [
+  "caw",
+  "opvoedingslijn",
+  "huisarts",
+  "clb",
+  "school",
+  "leerkracht",
+  "zorgleerkracht",
+  "psycholoog",
+  "therapeut",
+  "bemiddelaar",
+  "ocmw"
+];
+
 const emotionalTerms = [
-  "uitgeput",
-  "overweldigd",
-  "vastgelopen",
-  "bang",
-  "boos",
-  "verdrietig",
-  "alleen",
-  "ten einde raad",
-  "ik kan niet meer",
-  "ik ben op",
-  "machteloos",
-  "paniek"
+  { term: "uitgeput", value: "uitputting" },
+  { term: "overweldigd", value: "overweldiging" },
+  { term: "vastgelopen", value: "vastlopen" },
+  { term: "bang", value: "angst" },
+  { term: "boos", value: "frustratie" },
+  { term: "kwaad", value: "frustratie" },
+  { term: "schaam", value: "schaamte" },
+  { term: "schuld", value: "schuldgevoel" },
+  { term: "verdrietig", value: "verdriet" },
+  { term: "alleen", value: "eenzaamheid" },
+  { term: "ten einde raad", value: "machteloosheid" },
+  { term: "ik kan niet meer", value: "draagkracht onder druk" },
+  { term: "ik ben op", value: "draagkracht onder druk" },
+  { term: "machteloos", value: "machteloosheid" },
+  { term: "hopeloos", value: "hopeloosheid" },
+  { term: "verwarring", value: "verwarring" },
+  { term: "paniek", value: "paniek" }
 ];
 
 const concernTerms = [
@@ -84,8 +111,8 @@ function normalize(text: string) {
   return text.toLowerCase();
 }
 
-function firstMatch(text: string, terms: string[]) {
-  return terms.find((term) => text.includes(term));
+function firstValueMatch(text: string, terms: Array<{ term: string; value: string }>) {
+  return terms.find(({ term }) => text.includes(term))?.value;
 }
 
 function extractPreferredName(text: string) {
@@ -96,6 +123,13 @@ function extractPreferredName(text: string) {
 function extractChildAges(text: string) {
   const matches = Array.from(text.matchAll(/\b(\d{1,2})\s*(?:jaar|j)\b/gi)).map((match) => `${match[1]} jaar`);
   return unique(matches);
+}
+
+function extractChildRole(text: string) {
+  if (text.includes("zoon")) return "zoon";
+  if (text.includes("dochter")) return "dochter";
+  if (text.includes("kind")) return "kind";
+  return undefined;
 }
 
 function extractAttemptedActions(originalText: string) {
@@ -166,14 +200,115 @@ function extractFamilySituation(text: string) {
   return undefined;
 }
 
+function extractSupportNetwork(text: string) {
+  if (text.includes("geen steunnetwerk") || text.includes("zonder steunnetwerk")) return "geen steunnetwerk genoemd";
+  if (text.includes("sta er alleen voor") || text.includes("niemand helpt") || text.includes("helemaal alleen")) {
+    return "weinig of geen steun ervaren";
+  }
+  if (text.includes("familie helpt") || text.includes("vrienden helpen")) return "steun uit omgeving genoemd";
+  return undefined;
+}
+
+function extractRelationshipStatus(text: string) {
+  if (text.includes("gescheiden") || text.includes("scheiding")) return "gescheiden of in scheiding";
+  if (text.includes("alleenstaande")) return "alleenstaand ouderschap";
+  if (text.includes("nieuwe partner") || text.includes("samengesteld gezin")) return "samengesteld gezin";
+  return undefined;
+}
+
+function extractCustodySituation(text: string) {
+  if (text.includes("co-ouderschap") || text.includes("co ouderschap")) return "co-ouderschap";
+  if (text.includes("week om week")) return "week-om-weekregeling";
+  if (text.includes("omgangsregeling")) return "omgangsregeling";
+  return undefined;
+}
+
+function buildPatterns(input: {
+  normalized: string;
+  emotionalSignals: string[];
+  keyConcerns: string[];
+  supportNetwork?: string;
+  servicesContacted: string[];
+  attemptedActions: string[];
+}) {
+  const patterns = [
+    input.emotionalSignals.some((signal) =>
+      ["uitputting", "overweldiging", "draagkracht onder druk", "machteloosheid"].includes(signal)
+    )
+      ? "zorgdrager-overbelasting"
+      : null,
+    input.supportNetwork?.includes("weinig") || input.supportNetwork?.includes("geen")
+      ? "isolatie-of-steunnetwerkgat"
+      : null,
+    input.keyConcerns.some((concern) => concern.includes("school")) &&
+    input.keyConcerns.some((concern) => concern.includes("gedrag"))
+      ? "school-gedrag-spanningsveld"
+      : null,
+    input.keyConcerns.some((concern) => concern.includes("ontwikkeling"))
+      ? "ontwikkelingszorg"
+      : null,
+    input.keyConcerns.some((concern) => concern.includes("gedrag") || concern.includes("agressie"))
+      ? "gedragszorg"
+      : null,
+    input.servicesContacted.length === 0 && input.normalized.includes("weet niet")
+      ? "ondersteuningsroute-onduidelijk"
+      : null,
+    input.attemptedActions.length > 0 && input.normalized.includes("geen vooruitgang")
+      ? "pogingen-zonder-voelbare-vooruitgang"
+      : null,
+    input.normalized.includes("weet niet") || input.normalized.includes("wat moet ik doen")
+      ? "beslissingsverlamming"
+      : null
+  ].filter((pattern): pattern is string => Boolean(pattern));
+
+  return unique(patterns);
+}
+
+function buildPerspective(input: {
+  parentRole?: string;
+  childRole?: string;
+  childAges: string[];
+  patterns: string[];
+  keyConcerns: string[];
+  emotionalSignals: string[];
+}) {
+  const childLabel = input.childRole ? `je ${input.childRole}` : "je kind";
+
+  if (input.patterns.includes("school-gedrag-spanningsveld") && input.patterns.includes("zorgdrager-overbelasting")) {
+    const age = input.childAges.length > 0 ? ` van ${input.childAges.join(", ")}` : "";
+    return `Wat opvalt: school maakt zich zorgen over ${childLabel}${age}, terwijl jij tegelijk veel alleen lijkt te dragen. Die twee dingen kunnen samenhangen, maar het zijn niet noodzakelijk hetzelfde probleem. Er is de vraag wat je kind nodig heeft, en er is de vraag hoeveel jij nog alleen kan dragen.`;
+  }
+
+  if (input.patterns.includes("isolatie-of-steunnetwerkgat")) {
+    return "Wat opvalt: de situatie lijkt zwaarder te worden doordat je er weinig steun rond voelt. Dan gaat het niet alleen over het gezinsprobleem zelf, maar ook over het ontbreken van mensen die mee helpen dragen.";
+  }
+
+  if (input.patterns.includes("beslissingsverlamming")) {
+    return "Wat opvalt: je zoekt niet zomaar informatie, maar richting. Wanneer er te veel tegelijk speelt, kan de eerste taak zijn om te kiezen wat vandaag niet hoeft.";
+  }
+
+  if (input.emotionalSignals.length > 0 && input.keyConcerns.length > 0) {
+    return `Wat opvalt: ${input.keyConcerns[0]} vraagt aandacht, maar de emotionele druk eromheen lijkt minstens even belangrijk. Eerst helder krijgen wat het zwaarst weegt kan meer helpen dan meteen harder zoeken naar oplossingen.`;
+  }
+
+  return undefined;
+}
+
 function buildContextSummary(context: Omit<ConversationContext, "summary">, fallback: string) {
   const parts = [
     context.preferredName ? `Naam: ${context.preferredName}` : null,
     context.parentRole ? `Rol: ${context.parentRole}` : null,
+    context.childRole ? `Kindrol: ${context.childRole}` : null,
     context.familySituation ? `Gezinssituatie: ${context.familySituation}` : null,
+    context.relationshipStatus ? `Relatiestatus: ${context.relationshipStatus}` : null,
+    context.custodySituation ? `Regeling: ${context.custodySituation}` : null,
+    context.supportNetwork ? `Steunnetwerk: ${context.supportNetwork}` : null,
     context.childAges.length > 0 ? `Leeftijd kind(eren): ${context.childAges.join(", ")}` : null,
     context.peopleInvolved.length > 0 ? `Betrokkenen: ${context.peopleInvolved.join(", ")}` : null,
+    context.servicesContacted.length > 0 ? `Contacten/diensten: ${context.servicesContacted.join(", ")}` : null,
     context.keyConcerns.length > 0 ? `Belangrijke zorgen: ${context.keyConcerns.join(", ")}` : null,
+    context.patterns.length > 0 ? `Patronen: ${context.patterns.join(", ")}` : null,
+    context.perspective ? `Perspectief: ${context.perspective}` : null,
     context.emotionalState ? `Emotionele druk: ${context.emotionalState}` : null,
     context.attemptedActions.length > 0 ? `Al geprobeerd: ${context.attemptedActions.join(" / ")}` : null,
     context.desiredOutcome ? `Gewenste richting: ${context.desiredOutcome}` : null,
@@ -191,16 +326,44 @@ export function extractConversationContext(messages: ConversationMessage[]): Con
   const normalized = normalize(userText);
   const parentRole = roleTerms.find(({ term }) => normalized.includes(term))?.value;
   const mode = inferMode(normalized);
+  const emotionalSignals = unique(emotionalTerms.filter(({ term }) => normalized.includes(term)).map(({ value }) => value));
+  const keyConcerns = unique(concernTerms.filter(({ term }) => normalized.includes(term)).map(({ value }) => value));
+  const servicesContacted = unique(serviceTerms.filter((term) => normalized.includes(term)));
+  const supportNetwork = extractSupportNetwork(normalized);
+  const attemptedActions = unique(extractAttemptedActions(userText));
+  const patterns = buildPatterns({
+    normalized,
+    emotionalSignals,
+    keyConcerns,
+    supportNetwork,
+    servicesContacted,
+    attemptedActions
+  });
   const contextWithoutSummary = {
     preferredName: extractPreferredName(userText),
     parentRole,
+    childRole: extractChildRole(normalized),
     childAges: extractChildAges(userText),
     familySituation: extractFamilySituation(normalized),
+    supportNetwork,
+    relationshipStatus: extractRelationshipStatus(normalized),
+    custodySituation: extractCustodySituation(normalized),
     peopleInvolved: unique(peopleTerms.filter((term) => normalized.includes(term))),
-    emotionalState: firstMatch(normalized, emotionalTerms),
-    attemptedActions: unique(extractAttemptedActions(userText)),
+    servicesContacted,
+    emotionalState: firstValueMatch(normalized, emotionalTerms),
+    emotionalSignals,
+    attemptedActions,
     desiredOutcome: extractDesiredOutcome(userText),
-    keyConcerns: unique(concernTerms.filter(({ term }) => normalized.includes(term)).map(({ value }) => value)),
+    keyConcerns,
+    patterns,
+    perspective: buildPerspective({
+      parentRole,
+      childRole: extractChildRole(normalized),
+      childAges: extractChildAges(userText),
+      patterns,
+      keyConcerns,
+      emotionalSignals
+    }),
     mode
   };
 

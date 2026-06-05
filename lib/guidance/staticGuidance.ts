@@ -28,10 +28,13 @@ function buildFallbackContext(answers: ConversationAnswers): ConversationContext
     parentRole: clean(answers.family),
     childAges: clean(answers.children) ? [String(clean(answers.children))] : [],
     peopleInvolved: clean(answers.family) ? [String(clean(answers.family))] : [],
+    servicesContacted: [],
     emotionalState: clean(answers.hardest),
+    emotionalSignals: clean(answers.hardest) ? [String(clean(answers.hardest))] : [],
     attemptedActions: clean(answers.tried) ? [String(clean(answers.tried))] : [],
     desiredOutcome: clean(answers.support),
     keyConcerns: [],
+    patterns: [],
     mode: "structuur",
     summary: clean(answers.situation) ?? "Je beschrijft een situatie die nu moeilijk of onduidelijk aanvoelt."
   };
@@ -87,22 +90,37 @@ function buildPersonalGreeting(context: ConversationContext) {
 }
 
 function buildAcknowledgement(context: ConversationContext, firstMessage: string) {
-  const childPart = context.childAges.length > 0 ? ` Je noemt een kind van ${context.childAges.join(", ")}.` : "";
-  const peoplePart =
-    context.peopleInvolved.length > 0 ? ` Betrokkenen die ik meeneem: ${context.peopleInvolved.join(", ")}.` : "";
-  const concernPart =
-    context.keyConcerns.length > 0 ? ` De kern lijkt te raken aan ${context.keyConcerns.join(", ")}.` : "";
+  if (context.perspective) {
+    return context.perspective;
+  }
 
-  return `${firstMessage}${childPart}${peoplePart}${concernPart}`;
+  const concerns =
+    context.keyConcerns.length > 0
+      ? ` De kern lijkt te raken aan ${context.keyConcerns.slice(0, 2).join(" en ")}.`
+      : "";
+  const emotional =
+    context.emotionalSignals.length > 0
+      ? ` De emotionele laag die opvalt: ${context.emotionalSignals.slice(0, 2).join(" en ")}.`
+      : "";
+
+  return `${firstMessage}${concerns}${emotional}`;
 }
 
 function buildImportant(context: ConversationContext) {
-  if (context.emotionalState) {
+  if (context.patterns.includes("school-gedrag-spanningsveld") && context.patterns.includes("zorgdrager-overbelasting")) {
+    return "Wat waarschijnlijk het zwaarst weegt: er zijn zorgen rond je kind, maar jij staat ook onder grote draagkracht-druk. Als alle aandacht alleen naar het gedrag gaat, blijft jouw overbelasting onzichtbaar. Als alle aandacht alleen naar jouw uitputting gaat, blijft de vraag wat je kind nodig heeft liggen. De eerste helderheid zit in die twee sporen uit elkaar halen.";
+  }
+
+  if (context.patterns.includes("isolatie-of-steunnetwerkgat")) {
+    return "Wat waarschijnlijk het zwaarst weegt: de situatie wordt niet alleen bepaald door wat er gebeurt, maar ook door hoeveel je alleen moet dragen. Een steunnetwerkgat maakt gewone opvoedingsvragen sneller uitputtend.";
+  }
+
+  if (context.emotionalSignals.length > 0) {
     const concern =
       context.keyConcerns.length > 0
         ? ` Tegelijk speelt er inhoudelijk ${context.keyConcerns.slice(0, 2).join(" en ")}.`
         : "";
-    return `Wat waarschijnlijk het zwaarst weegt, is niet alleen het probleem zelf, maar de combinatie met ${context.emotionalState}.${concern} Dat zegt niets diagnostisch over jou of je kind; het helpt wel om te zien dat je eerst draagkracht en overzicht nodig hebt voordat je grote beslissingen neemt.`;
+    return `Wat waarschijnlijk het zwaarst weegt, is de combinatie van ${context.emotionalSignals.slice(0, 2).join(" en ")}.${concern} Dat zegt niets diagnostisch over jou of je kind; het helpt wel om te zien dat je eerst draagkracht en overzicht nodig hebt voordat je grote beslissingen neemt.`;
   }
 
   return "Wat waarschijnlijk zwaar weegt, is de onduidelijkheid: wat moet eerst, wie kan helpen, en wat mag even blijven liggen. Die onduidelijkheid kan op zichzelf al veel energie vragen.";
@@ -110,7 +128,11 @@ function buildImportant(context: ConversationContext) {
 
 function buildPracticalUrgency(context: ConversationContext) {
   if (context.attemptedActions.length > 0) {
-    return `Praktisch is belangrijk dat je niet opnieuw vanaf nul moet beginnen. Je hebt al geprobeerd: ${context.attemptedActions.join(" / ")}. Zet dat kort onder elkaar, zodat een leerkracht, CAW, huisarts, Opvoedingslijn of andere ondersteuner meteen ziet dat er al beweging is geweest.`;
+    const contacted =
+      context.servicesContacted.length > 0
+        ? ` Je noemde al contact met: ${context.servicesContacted.join(", ")}.`
+        : "";
+    return `Praktisch is belangrijk dat je niet opnieuw vanaf nul moet beginnen. Je hebt al geprobeerd: ${context.attemptedActions.join(" / ")}.${contacted} Zet dat kort onder elkaar, zodat de volgende gesprekspartner meteen ziet dat er al beweging is geweest.`;
   }
 
   return "Praktisch is de eerste urgentie niet om alles op te lossen, maar om een eerste gesprekspartner te kiezen. Denk aan school, huisarts, CAW, Opvoedingslijn of iemand uit je netwerk die rustig kan meedenken.";
@@ -139,7 +161,7 @@ function buildFirstStep(context: ConversationContext) {
 function buildSteps(context: ConversationContext) {
   const firstContact =
     context.peopleInvolved.includes("school") || context.peopleInvolved.includes("leerkracht")
-      ? "Vraag een kort overleg met de leerkracht of zorgcoordinator en neem je kernvraag mee."
+      ? "Vraag een kort overleg met de leerkracht of zorgcoordinator en benoem twee sporen: wat ziet school bij je kind, en welke steun is nodig zodat jij dit niet alleen blijft dragen?"
       : "Kies een laagdrempelig eerste contactpunt: CAW, Opvoedingslijn, huisarts of iemand die praktisch kan meedenken.";
 
   return [
@@ -147,9 +169,11 @@ function buildSteps(context: ConversationContext) {
       ? "Maak een korte lijst van wat al geprobeerd is, met datum of volgorde als je die weet. Zo wordt je verhaal lichter om te dragen en makkelijker uit te leggen."
       : "Noteer wat je al geprobeerd hebt, ook als het nog weinig of onsamenhangend voelt. Kleine pogingen tellen mee.",
     firstContact,
-    context.desiredOutcome
-      ? `Maak je hulpvraag concreet vanuit wat je zelf noemt: ${context.desiredOutcome}. Vraag niet om alles tegelijk, maar om hulp bij die eerste richting.`
-      : "Formuleer een hulpvraag in een zin: wat heb ik nu nodig om de volgende stap te kunnen zetten?"
+    context.patterns.includes("zorgdrager-overbelasting")
+      ? "Kies een ding dat je deze week niet meer alleen wil dragen en vraag daar concreet hulp bij."
+      : context.desiredOutcome
+        ? `Maak je hulpvraag concreet vanuit wat je zelf noemt: ${context.desiredOutcome}. Vraag niet om alles tegelijk, maar om hulp bij die eerste richting.`
+        : "Formuleer een hulpvraag in een zin: wat heb ik nu nodig om de volgende stap te kunnen zetten?"
   ];
 }
 
@@ -160,6 +184,30 @@ function buildMonitor(context: ConversationContext) {
       : "";
 
   return `Observeer de komende dagen zonder jezelf te veroordelen: wanneer loopt de spanning op${concern}, wat helpt heel even om te zakken, en bij wie wordt het iets makkelijker om helder te blijven? Schrijf alleen feiten en kleine signalen op, geen harde conclusies.`;
+}
+
+function buildOneThingNotToCarryAlone(context: ConversationContext) {
+  if (context.patterns.includes("school-gedrag-spanningsveld")) {
+    return "Draag het schoolstuk niet alleen. Vraag school niet alleen om te zeggen wat moeilijk loopt, maar ook om mee te denken over de eerstvolgende haalbare ondersteuning.";
+  }
+
+  if (context.patterns.includes("zorgdrager-overbelasting")) {
+    return "Draag je eigen uitputting niet als bijzaak. Die is deel van de situatie en mag expliciet benoemd worden wanneer je hulp vraagt.";
+  }
+
+  return "Draag de ordening niet alleen. Het is redelijk om iemand te vragen om met jou te helpen bepalen wat eerst komt.";
+}
+
+function buildNextQuestion(context: ConversationContext) {
+  if (context.patterns.includes("school-gedrag-spanningsveld") && context.patterns.includes("zorgdrager-overbelasting")) {
+    return "Welke vraag vraagt eerst aandacht: wat heeft je kind nodig op school, of welke steun heb jij nodig om dit gesprek rustig te kunnen voeren?";
+  }
+
+  if (context.patterns.includes("isolatie-of-steunnetwerkgat")) {
+    return "Wie kan deze week een klein stukje mee dragen, ook als die persoon het probleem niet kan oplossen?";
+  }
+
+  return "Wat zou het verschil maken tussen nog een dag overleven en morgen een klein beetje meer richting voelen?";
 }
 
 export function buildStaticGuidanceResult(input: GuidanceInput) {
@@ -175,6 +223,8 @@ export function buildStaticGuidanceResult(input: GuidanceInput) {
     canWait: buildCanWait(context),
     firstStep: buildFirstStep(context),
     steps: buildSteps(context),
+    oneThingNotToCarryAlone: buildOneThingNotToCarryAlone(context),
+    nextQuestion: buildNextQuestion(context),
     monitor: buildMonitor(context),
     whenToSeekHelp:
       "Schakel iemand in wanneer de situatie onveilig voelt, wanneer spanning of conflict snel oploopt, wanneer je bang bent voor geweld of misbruik, wanneer zelfbeschadiging of zelfmoordgedachten spelen, bij medische nood, of wanneer je merkt dat je draagkracht op is. Dat hoeft geen grote stap te zijn: een eerste contact met school, huisarts, CAW, Opvoedingslijn of een hulplijn kan al genoeg zijn om niet alleen verder te moeten zoeken.",

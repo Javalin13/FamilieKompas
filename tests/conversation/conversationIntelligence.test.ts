@@ -23,9 +23,12 @@ const reply = generateAssistantReply(messages);
 const decision = decideNextConversationStep(messages);
 const result = buildGuidanceResult({ context, messages });
 
-assert.ok(reply.includes("alleenstaande moeder"));
 assert.ok(reply.includes("gedrag") || reply.includes("school"));
+assert.ok(reply.includes("twee lagen") || reply.includes("niet noodzakelijk hetzelfde probleem"));
+assert.ok(reply.includes("Wat maakt je op dit moment het meest bang"));
 assert.ok(!reply.includes("Ben je moeder"));
+assert.ok(!reply.includes("Welke leeftijd"));
 assert.equal(decision.canCreateGuidance, true);
-assert.ok(result.summary.includes("alleenstaande moeder") || result.summary.includes("zoon"));
+assert.ok(result.summary.includes("niet noodzakelijk hetzelfde probleem"));
 assert.ok(result.emotionalImportant.length > 80);
+assert.ok(result.oneThingNotToCarryAlone.includes("school"));

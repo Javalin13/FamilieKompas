@@ -23,9 +23,15 @@ assert.equal(context.familySituation, "alleenstaande ouder");
 assert.deepEqual(context.childAges, ["8 jaar"]);
 assert.ok(context.peopleInvolved.includes("school"));
 assert.ok(context.peopleInvolved.includes("leerkracht"));
-assert.equal(context.emotionalState, "uitgeput");
+assert.equal(context.childRole, "zoon");
+assert.equal(context.emotionalState, "uitputting");
+assert.ok(context.emotionalSignals.includes("uitputting"));
+assert.ok(context.keyConcerns.includes("zorgen over gedrag"));
+assert.ok(context.patterns.includes("zorgdrager-overbelasting"));
+assert.ok(context.patterns.includes("school-gedrag-spanningsveld"));
 assert.ok(context.attemptedActions.some((action) => action.includes("leerkracht")));
 assert.equal(context.mode, "stappen");
+assert.ok(context.perspective?.includes("niet noodzakelijk hetzelfde probleem"));
 
 const nextMessage = buildNextAssistantMessage(context, 1);
 assert.ok(!nextMessage.includes("Ben je moeder"));

@@ -2,37 +2,29 @@
 
 import { redirect } from "next/navigation";
 import { clearAdminCookie, setAdminCookie } from "@/lib/admin/auth";
+import {
+  contextToLegacyAnswers,
+  type ConversationContext,
+  type ConversationMessage
+} from "@/lib/conversation/contextExtraction";
 import { buildStaticGuidanceResult } from "@/lib/guidance/staticGuidance";
 import { detectMissionPriority } from "@/lib/founder-alerts/missionPriorityRules";
 import { detectSafetyRisk } from "@/lib/safety/dutchSafetyRules";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 type ConversationPayload = {
-  answers: Record<string, string>;
-  urgent: string;
+  messages: ConversationMessage[];
+  context: ConversationContext;
 };
 
-function summarizeAnswers(answers: Record<string, string>) {
-  const situation = answers.situation?.trim();
-  const hardest = answers.hardest?.trim();
-
-  if (situation && hardest) {
-    return `${situation}\n\nMoeilijkste punt: ${hardest}`;
-  }
-
-  return situation || hardest || "Geen samenvatting beschikbaar.";
-}
-
 function buildFounderAlertSummary(input: {
-  answers: Record<string, string>;
+  context: ConversationContext;
+  userText: string;
   priority: "crisis" | "hoog";
   flagReason: string;
   matchedTerms?: string[];
 }) {
-  const { answers, priority, flagReason, matchedTerms = [] } = input;
-  const situation = answers.situation?.trim() || "Niet ingevuld.";
-  const hardest = answers.hardest?.trim() || "Niet ingevuld.";
-  const support = answers.support?.trim() || "Niet ingevuld.";
+  const { context, userText, priority, flagReason, matchedTerms = [] } = input;
   const matched = matchedTerms.length > 0 ? matchedTerms.join(", ") : "Geen specifieke term opgeslagen.";
   const nextStep =
     priority === "crisis"
@@ -42,9 +34,9 @@ function buildFounderAlertSummary(input: {
   return [
     `Prioriteit: ${priority}`,
     `Waarom geflagd: ${flagReason}`,
-    `Wat gebeurde er: ${situation}`,
-    `Moeilijkste punt: ${hardest}`,
-    `Gewenste volgende stap: ${support}`,
+    `Wat gebeurde er: ${userText || "Geen gebruikersbericht opgeslagen."}`,
+    `Context: ${context.summary || "Geen contextsamenvatting beschikbaar."}`,
+    `Modus: ${context.mode}`,
     `Gedetecteerde termen: ${matched}`,
     `Voorgestelde reviewstap: ${nextStep}`
   ].join("\n");
@@ -52,11 +44,12 @@ function buildFounderAlertSummary(input: {
 
 export async function submitConversation(payload: ConversationPayload) {
   const supabase = getSupabaseServerClient();
-  const combinedText = Object.values(payload.answers).join("\n");
+  const userMessages = payload.messages.filter((message) => message.role === "user");
+  const combinedText = userMessages.map((message) => message.content).join("\n");
   const safety = detectSafetyRisk(combinedText);
   const missionPriority = detectMissionPriority(combinedText);
-  const safetyTriggered = safety.triggered || payload.urgent === "ja";
-  const safetyReason = safety.riskType ?? (payload.urgent === "ja" ? "door_gebruiker_aangegeven" : null);
+  const safetyTriggered = safety.triggered;
+  const safetyReason = safety.riskType;
 
   const { data: session, error: sessionError } = await supabase
     .from("conversation_sessions")
@@ -66,6 +59,7 @@ export async function submitConversation(payload: ConversationPayload) {
       safety_reason: safetyReason,
       mission_priority: missionPriority.triggered,
       mission_priority_reason: missionPriority.reason,
+      context_json: payload.context,
       completed_at: new Date().toISOString()
     })
     .select("id")
@@ -75,32 +69,28 @@ export async function submitConversation(payload: ConversationPayload) {
     throw new Error(sessionError?.message ?? "Kon gesprek niet opslaan.");
   }
 
-  const userMessages = Object.entries(payload.answers)
-    .filter(([, value]) => value.trim().length > 0)
-    .map(([key, value]) => ({
-      session_id: session.id,
-      role: "user" as const,
-      content: `${key}: ${value}`,
-      safety_flag: safetyTriggered
-    }));
+  const persistedMessages = payload.messages.map((message) => ({
+    session_id: session.id,
+    role: message.role,
+    content: message.content,
+    safety_flag: safetyTriggered
+  }));
 
-  const assistantMessage = {
+  const finalAssistantMessage = {
     session_id: session.id,
     role: "assistant" as const,
     content: safetyTriggered
       ? "Veiligheidsflow gestart op basis van duidelijke risicosignalen."
-      : "Eerste overzicht aangemaakt op basis van het gesprek.",
+      : "Eerste persoonlijk overzicht aangemaakt op basis van het gesprek.",
     safety_flag: safetyTriggered
   };
 
-  if (userMessages.length > 0) {
-    const { error: messagesError } = await supabase
-      .from("conversation_messages")
-      .insert([...userMessages, assistantMessage]);
+  const { error: messagesError } = await supabase
+    .from("conversation_messages")
+    .insert([...persistedMessages, finalAssistantMessage]);
 
-    if (messagesError) {
-      throw new Error(messagesError.message);
-    }
+  if (messagesError) {
+    throw new Error(messagesError.message);
   }
 
   if (safetyTriggered) {
@@ -116,7 +106,8 @@ export async function submitConversation(payload: ConversationPayload) {
       priority: "crisis",
       reason: `Veiligheidsmelding: ${safetyReason}`,
       summary: buildFounderAlertSummary({
-        answers: payload.answers,
+        context: payload.context,
+        userText: combinedText,
         priority: "crisis",
         flagReason: `Veiligheidsmelding: ${safetyReason}`,
         matchedTerms: safety.matchedTerms
@@ -126,7 +117,11 @@ export async function submitConversation(payload: ConversationPayload) {
     redirect(`/veiligheid?session=${session.id}`);
   }
 
-  const result = buildStaticGuidanceResult(payload.answers);
+  const result = buildStaticGuidanceResult({
+    answers: contextToLegacyAnswers(payload.context, payload.messages),
+    context: payload.context,
+    messages: payload.messages
+  });
 
   const { data: guidanceResult, error: resultError } = await supabase
     .from("guidance_results")
@@ -149,7 +144,8 @@ export async function submitConversation(payload: ConversationPayload) {
       priority: "hoog",
       reason: `Missie-prioriteit: ${missionPriority.reason}`,
       summary: buildFounderAlertSummary({
-        answers: payload.answers,
+        context: payload.context,
+        userText: combinedText,
         priority: "hoog",
         flagReason: `Missie-prioriteit: ${missionPriority.reason}`,
         matchedTerms: missionPriority.matchedTerms

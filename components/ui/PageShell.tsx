@@ -10,7 +10,7 @@ export function PageShell({ children }: { children: ReactNode }) {
             FamilieKompas
           </Link>
           <nav className="flex items-center gap-4 text-sm text-kompas-muted">
-            <Link href="/voorwaarden">Grenzen</Link>
+            <Link href="/voorwaarden">Wat we wel en niet doen</Link>
             <Link href="/privacy">Privacy</Link>
           </nav>
         </div>

@@ -10,11 +10,14 @@ const result = buildStaticGuidanceResult({
   support: "Ik wil weten welke eerste stap ik morgen kan zetten."
 });
 
-assert.equal(result.title, "Je eerste overzicht");
+assert.equal(result.title, "Je eerste rustige overzicht");
 assert.ok(result.summary.length > 20);
-assert.ok(result.important.includes("vastgelopen"));
+assert.ok(result.emotionalImportant.includes("vastgelopen"));
+assert.ok(result.practicalUrgent.length > 20);
+assert.ok(result.canWait.length > 20);
 assert.ok(result.firstStep.length > 20);
 assert.ok(result.steps.length >= 3);
+assert.ok(result.monitor.length > 20);
 assert.ok(result.whenToSeekHelp.includes("zelfmoordgedachten"));
 assert.ok(result.questions.length >= 3);
 assert.ok(result.resources.length > 0);

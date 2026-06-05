@@ -1,10 +1,10 @@
 export const landingCopy = {
   eyebrow: "Voor ouders en gezinnen in Vlaanderen",
-  title: "Vind rust en een volgende stap wanneer alles even te veel is.",
+  title: "Als het thuis even te veel wordt, vind je hier een rustige volgende stap.",
   intro:
-    "Vertel kort wat er speelt. FamilieKompas helpt je om de situatie te ordenen, praktische stappen te zien en te weten welke ondersteuning mogelijk past.",
+    "Vertel in je eigen woorden wat er speelt. FamilieKompas helpt je luisteren naar de kern, ordenen wat belangrijk is en een eerste haalbare stap zien wanneer gewone hulp niet meteen beschikbaar is.",
   primaryAction: "Start het gesprek",
-  secondaryAction: "Bekijk de grenzen",
+  secondaryAction: "Wat FamilieKompas doet",
   trustLine:
-    "Menselijk, duidelijk en praktisch. Geen therapie, geen diagnose, geen juridisch of medisch advies."
+    "Warm, praktisch en veilig begrensd. Geen therapie of diagnose, wel structuur en richting."
 };

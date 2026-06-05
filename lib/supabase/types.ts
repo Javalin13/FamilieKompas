@@ -13,6 +13,7 @@ export type Database = {
           safety_reason: string | null;
           mission_priority: boolean;
           mission_priority_reason: string | null;
+          context_json: Json;
           created_at: string;
           completed_at: string | null;
         };
@@ -25,6 +26,7 @@ export type Database = {
           safety_reason?: string | null;
           mission_priority?: boolean;
           mission_priority_reason?: string | null;
+          context_json?: Json;
           created_at?: string;
           completed_at?: string | null;
         };

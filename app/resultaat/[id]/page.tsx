@@ -5,10 +5,14 @@ import { getSupabaseServerClient } from "@/lib/supabase/server";
 
 type GuidanceResultJson = {
   title?: string;
+  personalGreeting?: string;
   summary?: string;
-  important?: string;
+  emotionalImportant?: string;
+  practicalUrgent?: string;
+  canWait?: string;
   firstStep?: string;
   steps?: string[];
+  monitor?: string;
   whenToSeekHelp?: string;
   questions?: string[];
   boundaries?: string[];
@@ -57,12 +61,25 @@ export default async function ResultaatPage({
       <section className="mx-auto max-w-3xl px-5 py-10">
         <p className="text-sm font-semibold uppercase tracking-[0.16em] text-kompas-green">Eerste overzicht</p>
         <h1 className="mt-3 text-3xl font-semibold tracking-tight">{result.title}</h1>
+        {resultJson.personalGreeting ? (
+          <p className="mt-4 leading-7 text-kompas-ink">{resultJson.personalGreeting}</p>
+        ) : null}
         <p className="mt-4 leading-7 text-kompas-muted">{result.summary}</p>
 
         <div className="mt-8 space-y-5">
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5 shadow-soft">
-            <h2 className="text-lg font-semibold">Wat lijkt nu belangrijk?</h2>
-            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.important}</p>
+            <h2 className="text-lg font-semibold">Wat lijkt emotioneel belangrijk?</h2>
+            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.emotionalImportant}</p>
+          </section>
+
+          <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+            <h2 className="text-lg font-semibold">Wat lijkt praktisch dringend?</h2>
+            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.practicalUrgent}</p>
+          </section>
+
+          <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+            <h2 className="text-lg font-semibold">Wat kan even wachten?</h2>
+            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.canWait}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
@@ -77,6 +94,11 @@ export default async function ResultaatPage({
                 <li key={step}>{step}</li>
               ))}
             </ol>
+          </section>
+
+          <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+            <h2 className="text-lg font-semibold">Wat opvolgen de komende dagen?</h2>
+            <p className="mt-2 leading-7 text-kompas-muted">{resultJson.monitor}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
@@ -105,7 +127,7 @@ export default async function ResultaatPage({
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Belangrijke grenzen</h2>
+            <h2 className="text-lg font-semibold">Wat FamilieKompas wel en niet doet</h2>
             <ul className="mt-3 space-y-2 text-kompas-muted">
               {boundaries.map((boundary) => (
                 <li key={boundary}>- {boundary}</li>

@@ -79,19 +79,19 @@ function selectRelevantResources(context: ConversationContext, answers: Conversa
 
 function buildPersonalGreeting(context: ConversationContext) {
   if (context.preferredName) {
-    return `${context.preferredName}, dank je om dit zo rustig mogelijk onder woorden te brengen.`;
+    return `${context.preferredName}, dank je om dit te delen. Het klinkt alsof je al veel hebt proberen dragen voordat je hier terechtkwam.`;
   }
 
   if (context.parentRole) {
-    return `Dank je om dit te vertellen. Ik lees dit vanuit jouw situatie als ${context.parentRole}.`;
+    return "Dank je om dit te vertellen. Ik wil eerst recht doen aan wat dit van jou vraagt, nog voor er over stappen of oplossingen gesproken wordt.";
   }
 
-  return "Dank je om dit te vertellen. Je hoeft dit niet perfect te formuleren om toch een eerste richting te vinden.";
+  return "Dank je om dit te vertellen. Je hoeft dit niet perfect te formuleren om toch begrepen te worden.";
 }
 
 function buildAcknowledgement(context: ConversationContext, firstMessage: string) {
   if (context.perspective) {
-    return context.perspective;
+    return `Wat ik geloof dat je nu draagt: ${context.perspective}`;
   }
 
   const concerns =
@@ -103,16 +103,16 @@ function buildAcknowledgement(context: ConversationContext, firstMessage: string
       ? ` De emotionele laag die opvalt: ${context.emotionalSignals.slice(0, 2).join(" en ")}.`
       : "";
 
-  return `${firstMessage}${concerns}${emotional}`;
+  return `Wat ik geloof dat je nu draagt: ${firstMessage}${concerns}${emotional}`;
 }
 
 function buildImportant(context: ConversationContext) {
   if (context.patterns.includes("school-gedrag-spanningsveld") && context.patterns.includes("zorgdrager-overbelasting")) {
-    return "Wat waarschijnlijk het zwaarst weegt: er zijn zorgen rond je kind, maar jij staat ook onder grote draagkracht-druk. Als alle aandacht alleen naar het gedrag gaat, blijft jouw overbelasting onzichtbaar. Als alle aandacht alleen naar jouw uitputting gaat, blijft de vraag wat je kind nodig heeft liggen. De eerste helderheid zit in die twee sporen uit elkaar halen.";
+    return "Onder de oppervlakte lijken er twee vragen door elkaar te lopen: wat heeft je kind nodig, en hoeveel kun jij nog alleen blijven dragen? Als alle aandacht alleen naar het gedrag gaat, blijft jouw overbelasting onzichtbaar. Als alle aandacht alleen naar jouw uitputting gaat, blijft de vraag wat je kind nodig heeft liggen. De eerste helderheid zit in die twee sporen uit elkaar halen.";
   }
 
   if (context.patterns.includes("isolatie-of-steunnetwerkgat")) {
-    return "Wat waarschijnlijk het zwaarst weegt: de situatie wordt niet alleen bepaald door wat er gebeurt, maar ook door hoeveel je alleen moet dragen. Een steunnetwerkgat maakt gewone opvoedingsvragen sneller uitputtend.";
+    return "Onder de oppervlakte lijkt het niet alleen te gaan over wat er gebeurt, maar over hoeveel je alleen moet dragen. Een steunnetwerkgat maakt gewone opvoedingsvragen sneller uitputtend.";
   }
 
   if (context.emotionalSignals.length > 0) {
@@ -120,10 +120,10 @@ function buildImportant(context: ConversationContext) {
       context.keyConcerns.length > 0
         ? ` Tegelijk speelt er inhoudelijk ${context.keyConcerns.slice(0, 2).join(" en ")}.`
         : "";
-    return `Wat waarschijnlijk het zwaarst weegt, is de combinatie van ${context.emotionalSignals.slice(0, 2).join(" en ")}.${concern} Dat zegt niets diagnostisch over jou of je kind; het helpt wel om te zien dat je eerst draagkracht en overzicht nodig hebt voordat je grote beslissingen neemt.`;
+    return `Onder de oppervlakte valt vooral de combinatie op van ${context.emotionalSignals.slice(0, 2).join(" en ")}.${concern} Dat zegt niets diagnostisch over jou of je kind; het helpt wel om te zien dat je eerst draagkracht en overzicht nodig hebt voordat je grote beslissingen neemt.`;
   }
 
-  return "Wat waarschijnlijk zwaar weegt, is de onduidelijkheid: wat moet eerst, wie kan helpen, en wat mag even blijven liggen. Die onduidelijkheid kan op zichzelf al veel energie vragen.";
+  return "Onder de oppervlakte lijkt vooral de onduidelijkheid zwaar te wegen: wat moet eerst, wie kan helpen, en wat mag even blijven liggen. Die onduidelijkheid kan op zichzelf al veel energie vragen.";
 }
 
 function buildPracticalUrgency(context: ConversationContext) {
@@ -143,19 +143,19 @@ function buildCanWait(context: ConversationContext) {
     return "Een volledig plan hoeft vandaag nog niet. Ook verklaringen, schuldvragen en grote beslissingen mogen even wachten. Eerst is het genoeg om woorden te geven aan wat er speelt en wat jou nu het meest uitput.";
   }
 
-  return "Je hoeft vandaag niet het hele gezinsprobleem op te lossen. Wat kan wachten: definitieve conclusies, lange gesprekken met iedereen tegelijk, en perfecte uitleg. Wat wel helpt: een kleine stap die overzicht geeft.";
+  return "Je hoeft vandaag niet het hele gezinsprobleem op te lossen. Wat mogelijk mag wachten: definitieve conclusies, lange gesprekken met iedereen tegelijk, en perfecte uitleg. Wat wel helpt: een kleine stap die wat ademruimte geeft.";
 }
 
 function buildFirstStep(context: ConversationContext) {
   if (context.mode === "verhaal") {
-    return "Neem vanavond tien minuten om zonder oordeel verder op te schrijven wat je kwijt wil. Sluit af met een eenvoudige zin: wat heb ik nu nodig om de avond iets rustiger door te komen?";
+    return "Neem vanavond tien minuten om zonder oordeel op te schrijven wat je eigenlijk zou willen dat iemand begreep. Sluit af met een eenvoudige zin: wat heb ik nu nodig om de avond iets rustiger door te komen?";
   }
 
   if (context.mode === "stappen") {
-    return "Kies een eerste contact voor morgen en schrijf drie zinnen klaar: wat er speelt, wat je al probeerde, en welke concrete vraag je wil stellen.";
+    return "Kies een eerste contact voor morgen, maar hou het zacht en klein: wat speelt er, wat heb je al geprobeerd, en welke steun heb je nodig om niet alleen verder te moeten zoeken?";
   }
 
-  return "Schrijf op een blad drie korte kolommen: wat speelt er, wie is betrokken, en wat moet eerst aandacht krijgen. Hou het bewust klein.";
+  return "Schrijf op een blad drie korte kolommen: wat draag ik, wat hoort bij anderen, en wat vraagt vandaag als eerste aandacht? Hou het bewust klein.";
 }
 
 function buildSteps(context: ConversationContext) {

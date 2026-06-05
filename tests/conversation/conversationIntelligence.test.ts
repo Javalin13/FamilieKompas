@@ -25,7 +25,8 @@ const result = buildGuidanceResult({ context, messages });
 
 assert.ok(reply.includes("gedrag") || reply.includes("school"));
 assert.ok(reply.includes("twee lagen") || reply.includes("niet noodzakelijk hetzelfde probleem"));
-assert.ok(reply.includes("Wat maakt je op dit moment het meest bang"));
+assert.ok(reply.includes("Wat doet het meest pijn"));
+assert.ok(!reply.includes("De richting lijkt nu"));
 assert.ok(!reply.includes("Ben je moeder"));
 assert.ok(!reply.includes("Welke leeftijd"));
 assert.equal(decision.canCreateGuidance, true);

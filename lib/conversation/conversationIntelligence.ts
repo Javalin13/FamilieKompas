@@ -11,30 +11,64 @@ export type ConversationDecision = {
   nextPrompt: string | null;
 };
 
+type EmpathicMode = "listen" | "direction";
+
 function hasPattern(context: ConversationContext, pattern: string) {
   return context.patterns.includes(pattern);
+}
+
+function decideEmpathicMode(context: ConversationContext, userMessageCount: number): EmpathicMode {
+  if (userMessageCount <= 1 && context.mode !== "stappen") {
+    return "listen";
+  }
+
+  if (userMessageCount <= 1 && hasPattern(context, "zorgdrager-overbelasting")) {
+    return "listen";
+  }
+
+  return "direction";
+}
+
+function buildValidation(context: ConversationContext) {
+  if (hasPattern(context, "zorgdrager-overbelasting") && hasPattern(context, "school-gedrag-spanningsveld")) {
+    return "Dat klinkt ontzettend zwaar om tegelijk bezorgd te zijn om je kind en het gevoel te hebben dat jij degene bent die alles moet blijven dragen.";
+  }
+
+  if (hasPattern(context, "isolatie-of-steunnetwerkgat")) {
+    return "Dat klinkt heel eenzaam om mee rond te lopen, zeker als je het gevoel hebt dat er weinig mensen echt naast je staan.";
+  }
+
+  if (context.emotionalSignals.includes("schuldgevoel") || context.emotionalSignals.includes("schaamte")) {
+    return "Dat kan heel pijnlijk zijn, vooral als je ondertussen ook nog probeert overeind te blijven en het goed te doen.";
+  }
+
+  if (context.emotionalSignals.length > 0) {
+    return "Het klinkt alsof je al een tijd veel spanning meedraagt en dat dit niet zomaar een klein praktisch probleem is.";
+  }
+
+  return "Dank je om dit zo open te vertellen. Er zit genoeg in je verhaal om eerst rustig bij stil te staan.";
 }
 
 function buildUnderstanding(context: ConversationContext) {
   if (hasPattern(context, "school-gedrag-spanningsveld") && hasPattern(context, "zorgdrager-overbelasting")) {
     const child = context.childRole ? `je ${context.childRole}` : "je kind";
     const age = context.childAges.length > 0 ? ` van ${context.childAges.join(", ")}` : "";
-    return `Wat ik eruit haal: school kijkt naar het gedrag van ${child}${age}, maar jij lijkt tegelijk de hele zoektocht bijna alleen te dragen. Dat zijn twee lagen tegelijk.`;
+    return `Wat ik begrijp: school kijkt naar het gedrag van ${child}${age}, maar voor jou gaat het ook over hoe lang je deze zoektocht nog bijna alleen kunt blijven dragen.`;
   }
 
   if (hasPattern(context, "isolatie-of-steunnetwerkgat")) {
-    return "Wat ik eruit haal: de situatie zelf is moeilijk, maar het lijkt extra zwaar doordat er weinig mensen mee lijken te dragen.";
+    return "Wat ik begrijp: de situatie zelf is moeilijk, maar het ontbreken van steun maakt ze nog zwaarder dan ze op papier misschien lijkt.";
   }
 
   if (hasPattern(context, "beslissingsverlamming")) {
-    return "Wat ik eruit haal: je zoekt niet nog meer losse informatie, maar iemand die helpt bepalen wat nu eerst komt.";
+    return "Wat ik begrijp: je zoekt niet nog meer losse informatie, maar iemand die helpt bepalen wat nu eerst komt.";
   }
 
   if (context.keyConcerns.length > 0) {
-    return `Wat ik eruit haal: ${context.keyConcerns.slice(0, 2).join(" en ")} vragen aandacht, maar het gaat waarschijnlijk ook over hoe draagbaar dit voor jou nog voelt.`;
+    return `Wat ik begrijp: ${context.keyConcerns.slice(0, 2).join(" en ")} vragen aandacht, maar het gaat waarschijnlijk ook over hoe draagbaar dit voor jou nog voelt.`;
   }
 
-  return "Wat ik eruit haal: er speelt genoeg tegelijk om eerst rust en richting te zoeken, nog voor er een groot plan nodig is.";
+  return "Wat ik begrijp: er speelt genoeg tegelijk om eerst rust en richting te zoeken, nog voor er een groot plan nodig is.";
 }
 
 function buildInterpretation(context: ConversationContext) {
@@ -53,9 +87,11 @@ function buildInterpretation(context: ConversationContext) {
   return "Een manier om hiernaar te kijken: probeer het probleem niet meteen op te lossen, maar onderscheid eerst wat bij je kind hoort, wat bij de omgeving hoort, en wat jij momenteel alleen aan het dragen bent.";
 }
 
-function buildReflectionQuestion(context: ConversationContext) {
+function buildReflectionQuestion(context: ConversationContext, mode: EmpathicMode) {
   if (hasPattern(context, "zorgdrager-overbelasting") && hasPattern(context, "school-gedrag-spanningsveld")) {
-    return "Wat maakt je op dit moment het meest bang: wat dit betekent voor je kind, of hoe lang jij dit nog alleen kan blijven dragen?";
+    return mode === "listen"
+      ? "Wat doet het meest pijn in deze situatie: de zorgen rond je kind, of het gevoel dat jij dit allemaal moet blijven dragen?"
+      : "Wat maakt je op dit moment het meest bang: wat dit betekent voor je kind, of hoe lang jij dit nog alleen kan blijven dragen?";
   }
 
   if (hasPattern(context, "isolatie-of-steunnetwerkgat")) {
@@ -93,12 +129,16 @@ export function generateAssistantReply(messages: ConversationMessage[]) {
     return "Welkom. Vertel rustig wat er speelt. Je mag zoveel of zo weinig vertellen als je wil.";
   }
 
-  return [
-    buildUnderstanding(context),
-    buildInterpretation(context),
-    buildDirection(context),
-    buildReflectionQuestion(context)
-  ].join(" ");
+  const mode = decideEmpathicMode(context, userMessageCount);
+  const response = [buildValidation(context), buildUnderstanding(context), buildInterpretation(context)];
+
+  if (mode === "direction") {
+    response.push(buildDirection(context));
+  }
+
+  response.push(buildReflectionQuestion(context, mode));
+
+  return response.join(" ");
 }
 
 export function decideNextConversationStep(messages: ConversationMessage[]): ConversationDecision {

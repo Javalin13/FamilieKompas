@@ -69,12 +69,12 @@ export default async function ResultaatPage({
 
         <div className="mt-8 space-y-5">
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5 shadow-soft">
-            <h2 className="text-lg font-semibold">Wat ik uit je verhaal haal</h2>
+            <h2 className="text-lg font-semibold">Wat ik geloof dat je nu draagt</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{result.summary}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Wat hier waarschijnlijk het zwaarst weegt</h2>
+            <h2 className="text-lg font-semibold">Wat onder de oppervlakte belangrijk lijkt</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.emotionalImportant}</p>
           </section>
 
@@ -84,17 +84,17 @@ export default async function ResultaatPage({
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Wat je vandaag niet allemaal hoeft op te lossen</h2>
+            <h2 className="text-lg font-semibold">Wat misschien niet vandaag opgelost hoeft te worden</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.canWait}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Een rustige stap voor vandaag</h2>
+            <h2 className="text-lg font-semibold">Een zachte stap voor vandaag</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.firstStep}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Drie concrete stappen voor de komende dagen</h2>
+            <h2 className="text-lg font-semibold">Praktische volgende stappen</h2>
             <ol className="mt-3 list-decimal space-y-2 pl-5 text-kompas-muted">
               {steps.map((step) => (
                 <li key={step}>{step}</li>

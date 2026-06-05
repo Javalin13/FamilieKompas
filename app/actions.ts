@@ -3,11 +3,10 @@
 import { redirect } from "next/navigation";
 import { clearAdminCookie, setAdminCookie } from "@/lib/admin/auth";
 import {
-  contextToLegacyAnswers,
+  buildGuidanceResult,
   type ConversationContext,
   type ConversationMessage
-} from "@/lib/conversation/contextExtraction";
-import { buildStaticGuidanceResult } from "@/lib/guidance/staticGuidance";
+} from "@/lib/conversation/conversationIntelligence";
 import { detectMissionPriority } from "@/lib/founder-alerts/missionPriorityRules";
 import { detectSafetyRisk } from "@/lib/safety/dutchSafetyRules";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
@@ -117,8 +116,7 @@ export async function submitConversation(payload: ConversationPayload) {
     redirect(`/veiligheid?session=${session.id}`);
   }
 
-  const result = buildStaticGuidanceResult({
-    answers: contextToLegacyAnswers(payload.context, payload.messages),
+  const result = buildGuidanceResult({
     context: payload.context,
     messages: payload.messages
   });

@@ -64,11 +64,15 @@ export default async function ResultaatPage({
         {resultJson.personalGreeting ? (
           <p className="mt-4 leading-7 text-kompas-ink">{resultJson.personalGreeting}</p>
         ) : null}
-        <p className="mt-4 leading-7 text-kompas-muted">{result.summary}</p>
 
         <div className="mt-8 space-y-5">
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5 shadow-soft">
-            <h2 className="text-lg font-semibold">Wat lijkt emotioneel belangrijk?</h2>
+            <h2 className="text-lg font-semibold">Wat ik uit je verhaal haal</h2>
+            <p className="mt-2 leading-7 text-kompas-muted">{result.summary}</p>
+          </section>
+
+          <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+            <h2 className="text-lg font-semibold">Wat hier waarschijnlijk het zwaarst weegt</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.emotionalImportant}</p>
           </section>
 
@@ -78,17 +82,17 @@ export default async function ResultaatPage({
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Wat kan even wachten?</h2>
+            <h2 className="text-lg font-semibold">Wat je vandaag niet allemaal hoeft op te lossen</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.canWait}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Eerste rustige stap</h2>
+            <h2 className="text-lg font-semibold">Een rustige stap voor vandaag</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.firstStep}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Praktische stappen</h2>
+            <h2 className="text-lg font-semibold">Drie concrete stappen voor de komende dagen</h2>
             <ol className="mt-3 list-decimal space-y-2 pl-5 text-kompas-muted">
               {steps.map((step) => (
                 <li key={step}>{step}</li>
@@ -97,7 +101,7 @@ export default async function ResultaatPage({
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Wat opvolgen de komende dagen?</h2>
+            <h2 className="text-lg font-semibold">Wat je kan observeren zonder jezelf te veroordelen</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.monitor}</p>
           </section>
 
@@ -111,12 +115,12 @@ export default async function ResultaatPage({
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Wanneer hulp zoeken?</h2>
+            <h2 className="text-lg font-semibold">Wanneer je best iemand inschakelt</h2>
             <p className="mt-2 leading-7 text-kompas-muted">{resultJson.whenToSeekHelp}</p>
           </section>
 
           <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
-            <h2 className="text-lg font-semibold">Mogelijke hulpbronnen</h2>
+            <h2 className="text-lg font-semibold">Hulplijnen of organisaties die kunnen passen</h2>
             <p className="mt-2 text-sm text-kompas-muted">
               Deze bronnen zijn breed erkend in Vlaanderen/Belgie, maar moeten voor een bredere lancering
               opnieuw manueel gecontroleerd worden.

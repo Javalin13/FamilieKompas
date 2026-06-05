@@ -9,6 +9,7 @@ export type ConversationContext = {
   emotionalState?: string;
   attemptedActions: string[];
   desiredOutcome?: string;
+  keyConcerns: string[];
   mode: ConversationMode;
   summary: string;
 };
@@ -59,6 +60,20 @@ const emotionalTerms = [
   "ik ben op",
   "machteloos",
   "paniek"
+];
+
+const concernTerms = [
+  { term: "gedragsproblemen", value: "zorgen over gedrag" },
+  { term: "agressief", value: "agressie of hevige reacties" },
+  { term: "woedeaanvallen", value: "woedeaanvallen" },
+  { term: "school", value: "druk of zorgen rond school" },
+  { term: "leerkracht", value: "contact met school" },
+  { term: "scheiding", value: "scheiding of co-ouderschap" },
+  { term: "co-ouder", value: "co-ouderschap" },
+  { term: "angst", value: "angst of spanning" },
+  { term: "achterstand", value: "ontwikkeling of leerachterstand" },
+  { term: "geld", value: "financiele druk" },
+  { term: "woning", value: "woonstress" }
 ];
 
 function unique(values: string[]) {
@@ -158,6 +173,7 @@ function buildContextSummary(context: Omit<ConversationContext, "summary">, fall
     context.familySituation ? `Gezinssituatie: ${context.familySituation}` : null,
     context.childAges.length > 0 ? `Leeftijd kind(eren): ${context.childAges.join(", ")}` : null,
     context.peopleInvolved.length > 0 ? `Betrokkenen: ${context.peopleInvolved.join(", ")}` : null,
+    context.keyConcerns.length > 0 ? `Belangrijke zorgen: ${context.keyConcerns.join(", ")}` : null,
     context.emotionalState ? `Emotionele druk: ${context.emotionalState}` : null,
     context.attemptedActions.length > 0 ? `Al geprobeerd: ${context.attemptedActions.join(" / ")}` : null,
     context.desiredOutcome ? `Gewenste richting: ${context.desiredOutcome}` : null,
@@ -184,6 +200,7 @@ export function extractConversationContext(messages: ConversationMessage[]): Con
     emotionalState: firstMatch(normalized, emotionalTerms),
     attemptedActions: unique(extractAttemptedActions(userText)),
     desiredOutcome: extractDesiredOutcome(userText),
+    keyConcerns: unique(concernTerms.filter(({ term }) => normalized.includes(term)).map(({ value }) => value)),
     mode
   };
 
@@ -198,14 +215,20 @@ export function buildNextAssistantMessage(context: ConversationContext, userMess
     return "Welkom. Vertel rustig wat er speelt. Je mag zoveel of zo weinig vertellen als je wil.";
   }
 
-  const acknowledgement = [
-    context.parentRole ? `Ik hoor dat je dit vertelt vanuit je plek als ${context.parentRole}.` : null,
-    context.childAges.length > 0 ? `Je noemt een kind van ${context.childAges.join(", ")}.` : null,
-    context.emotionalState ? `Het klinkt alsof vooral ${context.emotionalState} nu zwaar weegt.` : null,
-    context.attemptedActions.length > 0 ? "Je hebt ook al stappen geprobeerd; dat neem ik mee." : null
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const role = context.parentRole ? `als ${context.parentRole}` : "vanuit jouw plek als ouder of verzorger";
+  const child = context.childAges.length > 0 ? ` Je noemt een kind van ${context.childAges.join(", ")}.` : "";
+  const concerns =
+    context.keyConcerns.length > 0
+      ? ` Ik neem vooral mee: ${context.keyConcerns.slice(0, 2).join(" en ")}.`
+      : "";
+  const emotion = context.emotionalState
+    ? ` Het lijkt niet alleen over de praktische situatie te gaan, maar ook over hoe ${context.emotionalState} dit nu voelt.`
+    : " Het lijkt niet alleen te gaan over wat er moet gebeuren, maar ook over de druk van het alleen moeten uitzoeken.";
+  const tried =
+    context.attemptedActions.length > 0
+      ? " Je hebt al iets geprobeerd; je hoeft dat hier niet opnieuw te bewijzen, ik neem het mee."
+      : "";
+  const acknowledgement = `Ik hoor dat je dit ${role} vertelt.${child}${concerns}${emotion}${tried}`;
 
   const missingQuestions = [
     context.mode === "onbekend"
@@ -218,11 +241,11 @@ export function buildNextAssistantMessage(context: ConversationContext, userMess
   ].filter(Boolean);
 
   if (missingQuestions.length === 0) {
-    return `${acknowledgement} Ik heb genoeg om een eerste rustig overzicht te maken. Je mag nog iets toevoegen, of meteen je eerste overzicht openen.`;
+    return `${acknowledgement} Ik heb genoeg om een eerste rustig overzicht te maken. Aanvullen mag altijd, maar je hoeft jezelf niet te herhalen.`;
   }
 
   const nextQuestion = missingQuestions[0];
-  return [acknowledgement || "Dank je. Ik neem mee wat je al vertelde.", nextQuestion].join(" ");
+  return `${acknowledgement} ${nextQuestion}`;
 }
 
 export function contextToLegacyAnswers(context: ConversationContext, messages: ConversationMessage[]) {

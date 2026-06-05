@@ -3,10 +3,11 @@
 import { FormEvent, useMemo, useState, useTransition } from "react";
 import { submitConversation } from "@/app/actions";
 import {
-  buildNextAssistantMessage,
+  decideNextConversationStep,
   extractConversationContext,
+  generateAssistantReply,
   type ConversationMessage
-} from "@/lib/conversation/contextExtraction";
+} from "@/lib/conversation/conversationIntelligence";
 
 const initialAssistantMessage =
   "Welkom. Vertel rustig wat er speelt. Je mag zoveel of zo weinig vertellen als je wil.";
@@ -23,25 +24,35 @@ export function ConversationShell() {
   ]);
   const [draft, setDraft] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [isThinking, setIsThinking] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const userMessageCount = messages.filter((message) => message.role === "user").length;
   const context = useMemo(() => extractConversationContext(messages), [messages]);
-  const canShowResult = userMessageCount > 0;
+  const decision = useMemo(() => decideNextConversationStep(messages), [messages]);
+  const canShowResult = decision.canCreateGuidance;
+  const composerPlaceholder =
+    userMessageCount === 0
+      ? "Bijvoorbeeld: Ik ben een alleenstaande moeder. Mijn zoon is 8..."
+      : "Schrijf gerust verder. FamilieKompas neemt mee wat je eerder zei.";
 
   function addUserMessage(content: string) {
     const userMessage: ConversationMessage = { role: "user", content };
     const updatedMessages = [...messages, userMessage];
-    const updatedContext = extractConversationContext(updatedMessages);
-    const assistantContent = buildNextAssistantMessage(updatedContext, userMessageCount + 1);
 
-    setMessages([...updatedMessages, { role: "assistant", content: assistantContent }]);
+    setMessages(updatedMessages);
+    setIsThinking(true);
+
+    window.setTimeout(() => {
+      setMessages([...updatedMessages, { role: "assistant", content: generateAssistantReply(updatedMessages) }]);
+      setIsThinking(false);
+    }, 420);
   }
 
   function handleMessageSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const content = draft.trim();
-    if (!content) return;
+    if (!content || isThinking) return;
 
     setDraft("");
     setError(null);
@@ -49,6 +60,7 @@ export function ConversationShell() {
   }
 
   function handleModeClick(content: string) {
+    if (isThinking) return;
     addUserMessage(content);
   }
 
@@ -76,35 +88,61 @@ export function ConversationShell() {
   }
 
   return (
-    <section className="space-y-5">
-      <div className="rounded-lg border border-kompas-line bg-kompas-paper p-4 shadow-soft">
-        <div className="space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={`${message.role}-${index}`}
-              className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
-            >
+    <section className="mx-auto flex min-h-[68vh] max-w-3xl flex-col rounded-lg border border-kompas-line bg-kompas-paper shadow-soft">
+      <div className="border-b border-kompas-line px-4 py-3 md:px-5">
+        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-kompas-green">FamilieKompas luistert mee</p>
+        <p className="mt-1 text-sm text-kompas-muted">
+          Je hoeft niets perfect te formuleren. Aanvullen, corrigeren of gewoon verder vertellen mag altijd.
+        </p>
+      </div>
+
+      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-5 md:px-6">
+        {messages.map((message, index) => (
+          <div
+            key={`${message.role}-${index}`}
+            className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
+          >
+            <div className={`max-w-[90%] md:max-w-[76%] ${message.role === "assistant" ? "space-y-2" : ""}`}>
+              {message.role === "assistant" ? (
+                <p className="text-xs font-semibold uppercase tracking-[0.12em] text-kompas-green">
+                  FamilieKompas
+                </p>
+              ) : null}
               <div
-                className={`max-w-[88%] rounded-lg px-4 py-3 text-sm leading-6 ${
+                className={`rounded-2xl px-4 py-3 text-sm leading-6 ${
                   message.role === "user"
-                    ? "bg-kompas-green text-white"
-                    : "border border-kompas-line bg-white text-kompas-ink"
+                    ? "rounded-br-md bg-kompas-green text-white"
+                    : "rounded-bl-md border border-kompas-line bg-white text-kompas-ink"
                 }`}
               >
                 {message.content}
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
 
-        {context.mode === "onbekend" && userMessageCount > 0 ? (
-          <div className="mt-5 flex flex-wrap gap-2">
+        {isThinking ? (
+          <div className="flex justify-start">
+            <div className="max-w-[76%] space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-kompas-green">FamilieKompas</p>
+              <div className="rounded-2xl rounded-bl-md border border-kompas-line bg-white px-4 py-3 text-sm text-kompas-muted">
+                Neemt even mee wat je net schreef...
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {context.mode === "onbekend" && userMessageCount > 0 && !isThinking ? (
+          <div className="flex flex-wrap gap-2 rounded-lg bg-kompas-greenSoft/60 p-3">
+            <p className="w-full text-xs font-semibold text-kompas-green">
+              Wat heb je nu het meest nodig?
+            </p>
             {modeOptions.map((option) => (
               <button
                 key={option.label}
                 type="button"
                 onClick={() => handleModeClick(option.value)}
-                className="rounded-full border border-kompas-line bg-kompas-greenSoft px-3 py-2 text-xs font-semibold text-kompas-green"
+                className="rounded-full border border-kompas-line bg-kompas-paper px-3 py-2 text-xs font-semibold text-kompas-green"
               >
                 {option.label}
               </button>
@@ -113,46 +151,47 @@ export function ConversationShell() {
         ) : null}
       </div>
 
-      <form onSubmit={handleMessageSubmit} className="rounded-lg border border-kompas-line bg-kompas-paper p-4">
-        <label htmlFor="conversation-message" className="block text-sm font-semibold">
-          Schrijf in je eigen woorden
-        </label>
-        <textarea
-          id="conversation-message"
-          className="mt-3 min-h-32 w-full rounded-md border border-kompas-line bg-white p-3 text-sm outline-none focus:border-kompas-green"
-          value={draft}
-          onChange={(event) => setDraft(event.target.value)}
-          placeholder="Bijvoorbeeld: Ik ben een alleenstaande moeder. Mijn zoon is 8..."
-        />
-        <div className="mt-3 flex flex-wrap items-center gap-3">
-          <button
-            type="submit"
-            className="rounded-md bg-kompas-green px-5 py-3 text-sm font-semibold text-white shadow-soft"
-          >
-            Verstuur
-          </button>
-          <p className="text-xs leading-5 text-kompas-muted">
-            FamilieKompas onthoudt wat je hier schrijft binnen dit gesprek en vraagt niet opnieuw wat al duidelijk is.
-          </p>
-        </div>
-      </form>
+      <div className="border-t border-kompas-line bg-kompas-paper/95 p-4 md:p-5">
+        <form onSubmit={handleMessageSubmit} className="space-y-3">
+          <label htmlFor="conversation-message" className="sr-only">
+            Schrijf verder
+          </label>
+          <textarea
+            id="conversation-message"
+            className="min-h-28 w-full resize-none rounded-lg border border-kompas-line bg-white p-4 text-sm outline-none focus:border-kompas-green"
+            value={draft}
+            onChange={(event) => setDraft(event.target.value)}
+            placeholder={composerPlaceholder}
+          />
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p className="text-xs leading-5 text-kompas-muted">
+              FamilieKompas onthoudt deze gesprekscontext. Je mag aanvullen; herhalen hoeft niet.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <button
+                type="submit"
+                disabled={isThinking}
+                className="rounded-md bg-kompas-green px-4 py-2 text-sm font-semibold text-white shadow-soft disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isThinking ? "Even aan het luisteren..." : "Stuur aanvulling"}
+              </button>
+              <button
+                type="button"
+                disabled={!canShowResult || isPending || isThinking}
+                onClick={handleResultSubmit}
+                className="rounded-md border border-kompas-line bg-white px-4 py-2 text-sm font-semibold text-kompas-ink disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                {isPending ? "Overzicht maken..." : "Maak mijn rustige overzicht"}
+              </button>
+            </div>
+          </div>
+        </form>
 
-      <div className="rounded-lg border border-kompas-line bg-kompas-paper p-4">
-        <p className="text-sm leading-6 text-kompas-muted">
-          Sommige situaties verdienen extra aandacht. Wanneer duidelijke veiligheids- of missieprioriteitssignalen
-          zichtbaar zijn, kan FamilieKompas die markeren voor verdere opvolging.
+        <p className="mt-3 text-xs leading-5 text-kompas-muted">
+          Sommige situaties verdienen extra aandacht. Bij duidelijke veiligheids- of missieprioriteitssignalen kan
+          FamilieKompas die markeren voor verdere opvolging.
         </p>
-        <button
-          type="button"
-          disabled={!canShowResult || isPending}
-          onClick={handleResultSubmit}
-          className="mt-4 w-full rounded-md bg-kompas-green px-5 py-3 text-sm font-semibold text-white shadow-soft disabled:cursor-not-allowed disabled:opacity-50 md:w-auto"
-        >
-          {isPending ? "Bezig met opslaan..." : "Toon mijn eerste overzicht"}
-        </button>
-        {!canShowResult ? (
-          <p className="mt-2 text-xs text-kompas-muted">Vertel eerst kort wat er speelt.</p>
-        ) : null}
+        {!canShowResult ? <p className="mt-2 text-xs text-kompas-muted">Vertel eerst kort wat er speelt.</p> : null}
         {error ? <p className="mt-3 text-sm font-semibold text-kompas-safety">{error}</p> : null}
       </div>
     </section>

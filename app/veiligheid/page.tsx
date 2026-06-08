@@ -6,18 +6,18 @@ import { safetyCopy } from "@/content/nl/safety";
 export default function VeiligheidPage() {
   return (
     <PageShell>
-      <section className="mx-auto max-w-3xl px-5 py-10">
-        <div className="rounded-lg border border-kompas-safety bg-kompas-paper p-6 shadow-soft">
-          <p className="text-sm font-semibold uppercase tracking-[0.16em] text-kompas-safety">Veiligheid</p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight">{safetyCopy.title}</h1>
-          <p className="mt-4 leading-7 text-kompas-muted">{safetyCopy.intro}</p>
-          <p className="mt-4 rounded-md bg-kompas-sand p-4 font-semibold text-kompas-safety">
+      <section className="mx-auto max-w-4xl px-5 py-10 md:py-14">
+        <div className="rounded-xl border border-kompas-safety/70 bg-kompas-paper/95 p-6 shadow-soft md:p-8">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-kompas-safety">Veiligheid</p>
+          <h1 className="mt-4 text-3xl font-semibold leading-tight tracking-tight md:text-4xl">{safetyCopy.title}</h1>
+          <p className="mt-5 max-w-3xl leading-7 text-kompas-muted">{safetyCopy.intro}</p>
+          <p className="mt-5 rounded-lg bg-kompas-sand p-4 font-semibold leading-7 text-kompas-safety">
             {safetyCopy.emergency}
           </p>
           <p className="mt-4 leading-7 text-kompas-muted">{safetyCopy.next}</p>
         </div>
 
-        <section className="mt-6 rounded-lg border border-kompas-line bg-kompas-paper p-5">
+        <section className="mt-6 rounded-xl border border-kompas-line bg-kompas-paper/95 p-5 md:p-6">
           <h2 className="text-lg font-semibold">Dringende hulpbronnen</h2>
           <p className="mt-2 text-sm leading-6 text-kompas-muted">
             Deze lijst bevat breed erkende Belgische en Vlaamse hulpbronnen. FamilieKompas kiest niet voor jou
@@ -28,7 +28,7 @@ export default function VeiligheidPage() {
           </div>
         </section>
 
-        <section className="mt-6 rounded-lg border border-kompas-line bg-kompas-paper p-5">
+        <section className="mt-6 rounded-xl border border-kompas-line bg-kompas-paper/95 p-5 md:p-6">
           <h2 className="text-lg font-semibold">Andere ondersteuning wanneer het niet acuut is</h2>
           <p className="mt-2 text-sm leading-6 text-kompas-muted">
             Als er geen onmiddellijk gevaar is, kunnen deze diensten helpen om te praten, opvoedingsvragen te

@@ -67,7 +67,7 @@ export function FollowUpRequest({
 
   if (submitted) {
     return (
-      <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+      <section className="rounded-xl border border-kompas-green/20 bg-kompas-greenSoft/70 p-5 md:p-6">
         <h2 className="text-lg font-semibold">Dank je</h2>
         <p className="mt-2 leading-7 text-kompas-muted">
           Je keuze is opgeslagen. Als je verdere opvolging vroeg, wordt dit zichtbaar gemaakt voor de founder.
@@ -77,15 +77,16 @@ export function FollowUpRequest({
   }
 
   return (
-    <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+    <section className="rounded-xl border border-kompas-line/90 bg-kompas-paper/95 p-5 shadow-soft md:p-6">
+      <p className="text-xs font-semibold uppercase tracking-[0.16em] text-kompas-green">Rustige opvolging</p>
       <h2 className="text-lg font-semibold">Wil je dat FamilieKompas dit verder opvolgt?</h2>
       <p className="mt-2 text-sm leading-6 text-kompas-muted">
         Je hoeft pas gegevens achter te laten als je later wil terugkomen of verdere opvolging wenst.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
-        <div className="space-y-2 text-sm">
-          <label className="flex items-center gap-2">
+        <div className="grid gap-2 text-sm">
+          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-kompas-line bg-white/80 p-3">
             <input
               type="radio"
               name="followUpChoice"
@@ -94,7 +95,7 @@ export function FollowUpRequest({
             />
             Dit is voldoende
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-kompas-line bg-white/80 p-3">
             <input
               type="radio"
               name="followUpChoice"
@@ -103,7 +104,7 @@ export function FollowUpRequest({
             />
             Ik wil hier later op terugkomen
           </label>
-          <label className="flex items-center gap-2">
+          <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-kompas-line bg-white/80 p-3">
             <input
               type="radio"
               name="followUpChoice"
@@ -118,27 +119,27 @@ export function FollowUpRequest({
           <div className="grid gap-3 md:grid-cols-2">
             <label className="text-sm font-semibold">
               Voornaam
-              <input name="firstName" required className="mt-1 w-full rounded-md border border-kompas-line p-2" />
+              <input name="firstName" required className="mt-1 w-full rounded-lg border border-kompas-line bg-white p-3 outline-none focus:border-kompas-green" />
             </label>
             <label className="text-sm font-semibold">
               Achternaam
-              <input name="lastName" required className="mt-1 w-full rounded-md border border-kompas-line p-2" />
+              <input name="lastName" required className="mt-1 w-full rounded-lg border border-kompas-line bg-white p-3 outline-none focus:border-kompas-green" />
             </label>
             <label className="text-sm font-semibold">
               E-mail
-              <input name="email" type="email" required className="mt-1 w-full rounded-md border border-kompas-line p-2" />
+              <input name="email" type="email" required className="mt-1 w-full rounded-lg border border-kompas-line bg-white p-3 outline-none focus:border-kompas-green" />
             </label>
             <label className="text-sm font-semibold">
               Telefoon optioneel
-              <input name="phone" className="mt-1 w-full rounded-md border border-kompas-line p-2" />
+              <input name="phone" className="mt-1 w-full rounded-lg border border-kompas-line bg-white p-3 outline-none focus:border-kompas-green" />
             </label>
             <label className="text-sm font-semibold">
               Gemeente optioneel
-              <input name="municipality" className="mt-1 w-full rounded-md border border-kompas-line p-2" />
+              <input name="municipality" className="mt-1 w-full rounded-lg border border-kompas-line bg-white p-3 outline-none focus:border-kompas-green" />
             </label>
             <label className="text-sm font-semibold">
               Voorkeurscontact
-              <select name="preferredContact" className="mt-1 w-full rounded-md border border-kompas-line p-2">
+              <select name="preferredContact" className="mt-1 w-full rounded-lg border border-kompas-line bg-white p-3 outline-none focus:border-kompas-green">
                 <option value="email">E-mail</option>
                 <option value="telefoon">Telefoon</option>
               </select>
@@ -149,7 +150,7 @@ export function FollowUpRequest({
         <button
           type="submit"
           disabled={isPending}
-          className="rounded-md bg-kompas-green px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+          className="rounded-lg bg-kompas-green px-4 py-2.5 text-sm font-semibold text-white shadow-soft disabled:opacity-50"
         >
           {isPending ? "Bezig met opslaan..." : "Bewaar mijn keuze"}
         </button>

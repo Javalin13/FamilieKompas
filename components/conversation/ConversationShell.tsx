@@ -88,31 +88,31 @@ export function ConversationShell() {
   }
 
   return (
-    <section className="mx-auto flex min-h-[68vh] max-w-3xl flex-col rounded-lg border border-kompas-line bg-kompas-paper shadow-soft">
-      <div className="border-b border-kompas-line px-4 py-3 md:px-5">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-kompas-green">FamilieKompas luistert mee</p>
-        <p className="mt-1 text-sm text-kompas-muted">
+    <section className="mx-auto flex min-h-[72vh] max-w-4xl flex-col overflow-hidden rounded-xl border border-kompas-line/90 bg-kompas-paper/95 shadow-soft">
+      <div className="border-b border-kompas-line/80 bg-white/50 px-5 py-4 md:px-6">
+        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-kompas-green">FamilieKompas luistert mee</p>
+        <p className="mt-2 max-w-2xl text-sm leading-6 text-kompas-muted">
           Je hoeft niets perfect te formuleren. Aanvullen, corrigeren of gewoon verder vertellen mag altijd.
         </p>
       </div>
 
-      <div className="flex-1 space-y-5 overflow-y-auto px-4 py-5 md:px-6">
+      <div className="flex-1 space-y-6 overflow-y-auto px-4 py-6 md:px-7 md:py-8">
         {messages.map((message, index) => (
           <div
             key={`${message.role}-${index}`}
             className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}
           >
-            <div className={`max-w-[90%] md:max-w-[76%] ${message.role === "assistant" ? "space-y-2" : ""}`}>
+            <div className={`max-w-[92%] md:max-w-[74%] ${message.role === "assistant" ? "space-y-2" : ""}`}>
               {message.role === "assistant" ? (
                 <p className="text-xs font-semibold uppercase tracking-[0.12em] text-kompas-green">
                   FamilieKompas
                 </p>
               ) : null}
               <div
-                className={`rounded-2xl px-4 py-3 text-sm leading-6 ${
+                className={`rounded-2xl px-4 py-3 text-[15px] leading-7 shadow-[0_1px_0_rgba(36,52,47,0.04)] ${
                   message.role === "user"
                     ? "rounded-br-md bg-kompas-green text-white"
-                    : "rounded-bl-md border border-kompas-line bg-white text-kompas-ink"
+                    : "rounded-bl-md border border-kompas-line bg-white/95 text-kompas-ink"
                 }`}
               >
                 {message.content}
@@ -125,7 +125,7 @@ export function ConversationShell() {
           <div className="flex justify-start">
             <div className="max-w-[76%] space-y-2">
               <p className="text-xs font-semibold uppercase tracking-[0.12em] text-kompas-green">FamilieKompas</p>
-              <div className="rounded-2xl rounded-bl-md border border-kompas-line bg-white px-4 py-3 text-sm text-kompas-muted">
+              <div className="rounded-2xl rounded-bl-md border border-kompas-line bg-white/95 px-4 py-3 text-sm text-kompas-muted">
                 Neemt even mee wat je net schreef...
               </div>
             </div>
@@ -133,7 +133,7 @@ export function ConversationShell() {
         ) : null}
 
         {context.mode === "onbekend" && userMessageCount > 0 && !isThinking ? (
-          <div className="flex flex-wrap gap-2 rounded-lg bg-kompas-greenSoft/60 p-3">
+          <div className="flex flex-wrap gap-2 rounded-xl border border-kompas-green/10 bg-kompas-greenSoft/65 p-4">
             <p className="w-full text-xs font-semibold text-kompas-green">
               Wat heb je nu het meest nodig?
             </p>
@@ -142,7 +142,7 @@ export function ConversationShell() {
                 key={option.label}
                 type="button"
                 onClick={() => handleModeClick(option.value)}
-                className="rounded-full border border-kompas-line bg-kompas-paper px-3 py-2 text-xs font-semibold text-kompas-green"
+                className="rounded-full border border-kompas-line bg-kompas-paper px-3 py-2 text-xs font-semibold text-kompas-green transition hover:border-kompas-green/40 hover:bg-white"
               >
                 {option.label}
               </button>
@@ -151,27 +151,27 @@ export function ConversationShell() {
         ) : null}
       </div>
 
-      <div className="border-t border-kompas-line bg-kompas-paper/95 p-4 md:p-5">
+      <div className="border-t border-kompas-line bg-kompas-paper/95 p-4 md:p-6">
         <form onSubmit={handleMessageSubmit} className="space-y-3">
           <label htmlFor="conversation-message" className="sr-only">
             Schrijf verder
           </label>
           <textarea
             id="conversation-message"
-            className="min-h-28 w-full resize-none rounded-lg border border-kompas-line bg-white p-4 text-sm outline-none focus:border-kompas-green"
+            className="min-h-32 w-full resize-none rounded-xl border border-kompas-line bg-white p-4 text-[15px] leading-7 outline-none transition focus:border-kompas-green focus:ring-2 focus:ring-kompas-greenSoft"
             value={draft}
             onChange={(event) => setDraft(event.target.value)}
             placeholder={composerPlaceholder}
           />
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-            <p className="text-xs leading-5 text-kompas-muted">
+            <p className="max-w-md text-xs leading-5 text-kompas-muted">
               FamilieKompas onthoudt deze gesprekscontext. Je mag aanvullen; herhalen hoeft niet.
             </p>
             <div className="flex flex-wrap gap-2">
               <button
                 type="submit"
                 disabled={isThinking}
-                className="rounded-md bg-kompas-green px-4 py-2 text-sm font-semibold text-white shadow-soft disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg bg-kompas-green px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-kompas-green/95 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isThinking ? "Even aan het luisteren..." : "Stuur aanvulling"}
               </button>
@@ -179,7 +179,7 @@ export function ConversationShell() {
                 type="button"
                 disabled={!canShowResult || isPending || isThinking}
                 onClick={handleResultSubmit}
-                className="rounded-md border border-kompas-line bg-white px-4 py-2 text-sm font-semibold text-kompas-ink disabled:cursor-not-allowed disabled:opacity-50"
+                className="rounded-lg border border-kompas-line bg-white px-4 py-2.5 text-sm font-semibold text-kompas-ink transition hover:border-kompas-green/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {isPending ? "Overzicht maken..." : "Maak mijn rustige overzicht"}
               </button>

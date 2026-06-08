@@ -31,7 +31,7 @@ export function FeedbackPlaceholder({
   }
 
   return (
-    <section className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+    <section className="rounded-xl border border-kompas-line bg-white/80 p-5 md:p-6">
       <h2 className="text-lg font-semibold">{feedbackCopy.title}</h2>
       <p className="mt-2 text-sm text-kompas-muted">{feedbackCopy.intro}</p>
       <div className="mt-4 flex flex-wrap gap-2">
@@ -41,7 +41,7 @@ export function FeedbackPlaceholder({
             type="button"
             disabled={isPending}
             onClick={() => saveFeedback(label)}
-            className="rounded-md border border-kompas-line bg-white px-3 py-2 text-sm hover:border-kompas-green"
+            className="rounded-lg border border-kompas-line bg-kompas-paper px-3 py-2 text-sm font-semibold text-kompas-ink transition hover:border-kompas-green/40 hover:bg-white"
           >
             {label}
           </button>

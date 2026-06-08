@@ -73,40 +73,45 @@ export default async function BeheerPage() {
 
   return (
     <PageShell>
-      <section className="mx-auto max-w-4xl px-5 py-10">
-        <div className="flex flex-wrap items-start justify-between gap-4">
+      <section className="mx-auto max-w-5xl px-5 py-10 md:py-14">
+        <div className="flex flex-wrap items-start justify-between gap-4 rounded-xl border border-kompas-line/90 bg-kompas-paper/95 p-6 shadow-soft md:p-8">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.16em] text-kompas-green">Beheer</p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight">Founder alerts</h1>
-            <p className="mt-3 max-w-2xl text-kompas-muted">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-kompas-green">Beheer</p>
+            <h1 className="mt-3 text-3xl font-semibold tracking-tight">Founder overzicht</h1>
+            <p className="mt-3 max-w-2xl leading-7 text-kompas-muted">
               Eenvoudige lijst met opgeslagen missie- en veiligheidsmeldingen. Deze pagina is beschermd met een
               MVP-wachtwoordpoort.
             </p>
           </div>
           <form action={logoutAdmin}>
-            <button className="rounded-md border border-kompas-line bg-kompas-paper px-4 py-2 text-sm font-semibold">
+            <button className="rounded-lg border border-kompas-line bg-white px-4 py-2.5 text-sm font-semibold transition hover:border-kompas-green/40">
               Uitloggen
             </button>
           </form>
         </div>
 
         {configurationError ? (
-          <div className="mt-6 rounded-lg border border-kompas-safety bg-kompas-paper p-5 text-sm text-kompas-safety">
+          <div className="mt-6 rounded-xl border border-kompas-safety bg-kompas-paper p-5 text-sm text-kompas-safety">
             Supabase is nog niet correct geconfigureerd: {configurationError}
           </div>
         ) : null}
 
-        <section className="mt-6">
-          <h2 className="text-xl font-semibold">Opvolgingsvragen</h2>
+        <section className="mt-8">
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-kompas-green">Opvolging</p>
+              <h2 className="mt-2 text-2xl font-semibold tracking-tight">Opvolgingsvragen</h2>
+            </div>
+          </div>
           <div className="mt-3 space-y-3">
             {followUps.length === 0 && !configurationError ? (
-              <p className="rounded-lg border border-kompas-line bg-kompas-paper p-5 text-kompas-muted">
+              <p className="rounded-xl border border-kompas-line bg-kompas-paper/95 p-5 text-kompas-muted">
                 Er zijn nog geen opvolgingsvragen.
               </p>
             ) : null}
 
             {followUps.map((request) => (
-              <article key={request.id} className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+              <article key={request.id} className="rounded-xl border border-kompas-line bg-kompas-paper/95 p-5 shadow-[0_1px_0_rgba(36,52,47,0.04)]">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="rounded-full bg-kompas-greenSoft px-3 py-1 text-xs font-semibold uppercase text-kompas-green">
                     Urgentie: {request.urgency_level}
@@ -115,7 +120,7 @@ export default async function BeheerPage() {
                     Status: {request.status}
                   </span>
                 </div>
-                <h3 className="mt-3 font-semibold">
+                <h3 className="mt-3 text-lg font-semibold">
                   {request.first_name} {request.last_name}
                 </h3>
                 <p className="mt-1 text-sm text-kompas-muted">
@@ -124,7 +129,7 @@ export default async function BeheerPage() {
                   {request.municipality ? ` / ${request.municipality}` : ""}
                 </p>
                 <p className="mt-2 text-sm text-kompas-muted">Voorkeurscontact: {request.preferred_contact}</p>
-                <p className="mt-3 whitespace-pre-line text-sm text-kompas-muted">
+                <p className="mt-3 whitespace-pre-line rounded-lg bg-white/80 p-3 text-sm leading-6 text-kompas-muted">
                   Waarom: {request.reason ?? request.requested_follow_up}
                   {"\n"}Thema's: {request.key_themes ?? "Niet opgegeven"}
                   {"\n"}Voorgestelde volgende stap: {request.suggested_next_step ?? "Niet opgegeven"}
@@ -137,15 +142,20 @@ export default async function BeheerPage() {
           </div>
         </section>
 
-        <div className="mt-6 space-y-3">
+        <section className="mt-8">
+          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-kompas-green">Aandacht</p>
+          <h2 className="mt-2 text-2xl font-semibold tracking-tight">Founder alerts</h2>
+        </section>
+
+        <div className="mt-3 space-y-3">
           {alerts.length === 0 && !configurationError ? (
-            <p className="rounded-lg border border-kompas-line bg-kompas-paper p-5 text-kompas-muted">
+            <p className="rounded-xl border border-kompas-line bg-kompas-paper/95 p-5 text-kompas-muted">
               Er zijn nog geen founder alerts.
             </p>
           ) : null}
 
           {alerts.map((alert) => (
-            <article key={alert.id} className="rounded-lg border border-kompas-line bg-kompas-paper p-5">
+            <article key={alert.id} className="rounded-xl border border-kompas-line bg-kompas-paper/95 p-5 shadow-[0_1px_0_rgba(36,52,47,0.04)]">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <div className="flex flex-wrap items-center gap-2">
@@ -156,8 +166,8 @@ export default async function BeheerPage() {
                       Status: {alert.status}
                     </span>
                   </div>
-                  <h2 className="mt-3 font-semibold">{alert.reason}</h2>
-                  <p className="mt-1 max-w-2xl whitespace-pre-line text-sm text-kompas-muted">
+                  <h3 className="mt-3 text-lg font-semibold">{alert.reason}</h3>
+                  <p className="mt-2 max-w-2xl whitespace-pre-line rounded-lg bg-white/80 p-3 text-sm leading-6 text-kompas-muted">
                     {alert.summary}
                   </p>
                   <p className="mt-2 text-xs text-kompas-muted">
@@ -167,7 +177,7 @@ export default async function BeheerPage() {
               </div>
               {alert.status !== "gesloten" ? (
                 <form action={markFounderAlertResolved.bind(null, alert.id)} className="mt-4">
-                  <button className="rounded-md border border-kompas-line bg-white px-3 py-2 text-sm font-semibold">
+                  <button className="rounded-lg border border-kompas-line bg-white px-3 py-2 text-sm font-semibold transition hover:border-kompas-green/40">
                     Markeer als gesloten
                   </button>
                 </form>

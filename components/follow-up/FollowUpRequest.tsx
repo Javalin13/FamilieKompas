@@ -70,7 +70,7 @@ export function FollowUpRequest({
       <section className="rounded-xl border border-kompas-green/20 bg-kompas-greenSoft/70 p-5 md:p-6">
         <h2 className="text-lg font-semibold">Dank je</h2>
         <p className="mt-2 leading-7 text-kompas-muted">
-          Je keuze is opgeslagen. Als je verdere opvolging vroeg, wordt dit zichtbaar gemaakt voor de founder.
+          Je keuze is opgeslagen. Als je verdere opvolging vroeg, zetten we dit klaar om rustig op terug te komen.
         </p>
       </section>
     );
@@ -79,9 +79,10 @@ export function FollowUpRequest({
   return (
     <section className="rounded-xl border border-kompas-line/90 bg-kompas-paper/95 p-5 shadow-soft md:p-6">
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-kompas-green">Rustige opvolging</p>
-      <h2 className="text-lg font-semibold">Wil je dat FamilieKompas dit verder opvolgt?</h2>
+      <h2 className="text-lg font-semibold">Wil je dat we dit bewaren voor opvolging?</h2>
       <p className="mt-2 text-sm leading-6 text-kompas-muted">
-        Je hoeft pas gegevens achter te laten als je later wil terugkomen of verdere opvolging wenst.
+        Je kan dit gewoon afronden, of aangeven dat je hier later rustig op wil terugkomen. Contactgegevens vragen we
+        alleen als opvolging nodig is.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-4 space-y-4">
@@ -152,7 +153,7 @@ export function FollowUpRequest({
           disabled={isPending}
           className="rounded-lg bg-kompas-green px-4 py-2.5 text-sm font-semibold text-white shadow-soft disabled:opacity-50"
         >
-          {isPending ? "Bezig met opslaan..." : "Bewaar mijn keuze"}
+          {isPending ? "Bezig met bewaren..." : choice === "voldoende" ? "Afronden" : "Bewaar voor opvolging"}
         </button>
         {error ? <p className="text-sm font-semibold text-kompas-safety">{error}</p> : null}
       </form>

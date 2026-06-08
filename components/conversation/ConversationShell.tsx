@@ -33,8 +33,9 @@ export function ConversationShell() {
   const canShowResult = decision.canCreateGuidance;
   const composerPlaceholder =
     userMessageCount === 0
-      ? "Bijvoorbeeld: Ik ben een alleenstaande moeder. Mijn zoon is 8..."
-      : "Schrijf gerust verder. FamilieKompas neemt mee wat je eerder zei.";
+      ? "Bijvoorbeeld: Het loopt thuis vast met mijn zoon van 8..."
+      : "Schrijf gerust verder. Wat je al vertelde nemen we mee.";
+  const submitLabel = userMessageCount === 0 ? "Start het gesprek" : "Vertel verder";
 
   function addUserMessage(content: string) {
     const userMessage: ConversationMessage = { role: "user", content };
@@ -165,7 +166,7 @@ export function ConversationShell() {
           />
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <p className="max-w-md text-xs leading-5 text-kompas-muted">
-              FamilieKompas onthoudt deze gesprekscontext. Je mag aanvullen; herhalen hoeft niet.
+              Je hoeft jezelf niet te herhalen. Wat je al vertelde nemen we mee.
             </p>
             <div className="flex flex-wrap gap-2">
               <button
@@ -173,7 +174,7 @@ export function ConversationShell() {
                 disabled={isThinking}
                 className="rounded-lg bg-kompas-green px-4 py-2.5 text-sm font-semibold text-white shadow-soft transition hover:bg-kompas-green/95 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isThinking ? "Even aan het luisteren..." : "Stuur aanvulling"}
+                {isThinking ? "Even aan het luisteren..." : submitLabel}
               </button>
               <button
                 type="button"
@@ -181,15 +182,15 @@ export function ConversationShell() {
                 onClick={handleResultSubmit}
                 className="rounded-lg border border-kompas-line bg-white px-4 py-2.5 text-sm font-semibold text-kompas-ink transition hover:border-kompas-green/40 disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isPending ? "Overzicht maken..." : "Maak mijn rustige overzicht"}
+                {isPending ? "We ordenen dit..." : "Help mij dit ordenen"}
               </button>
             </div>
           </div>
         </form>
 
         <p className="mt-3 text-xs leading-5 text-kompas-muted">
-          Sommige situaties verdienen extra aandacht. Bij duidelijke veiligheids- of missieprioriteitssignalen kan
-          FamilieKompas die markeren voor verdere opvolging.
+          Sommige situaties verdienen extra aandacht. Bij duidelijke veiligheidszorgen stopt gewone begeleiding en
+          tonen we passende hulpbronnen.
         </p>
         {!canShowResult ? <p className="mt-2 text-xs text-kompas-muted">Vertel eerst kort wat er speelt.</p> : null}
         {error ? <p className="mt-3 text-sm font-semibold text-kompas-safety">{error}</p> : null}

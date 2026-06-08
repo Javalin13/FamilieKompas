@@ -22,3 +22,7 @@ Specialized family-support knowledge and safety-aware methodology.
 ## What Ryzen Receives
 
 Aggregated, non-personal specialization intelligence.
+
+## Convergence Boundary
+
+Knowledge continuity is future infrastructure. The current product may produce learning signals, but no automated knowledge synchronization, memory federation, Ryzen feed, or ARC infrastructure should be implemented during Phase 6.

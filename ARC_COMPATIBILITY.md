@@ -19,3 +19,7 @@ FamilieKompas can become a specialized Family Intelligence ARC domain.
 - Crisis-aware guidance
 - Social support routing
 - Knowledge archive maturity
+
+## Convergence Boundary
+
+ARC compatibility remains strategic architecture only. Current work should preserve safety, consent, and structured knowledge patterns without implementing ARC infrastructure.

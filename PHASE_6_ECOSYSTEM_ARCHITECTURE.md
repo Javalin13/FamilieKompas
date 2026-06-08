@@ -21,3 +21,11 @@ Conversation first. Value first. Trust first. Relationship second. Contact detai
 - User consent precedes retention.
 - Personal data and knowledge archives stay separate.
 - MVP simplicity remains protected until product-market fit.
+
+## Convergence Alignment
+
+`PHASE_6_CONVERGENCE_ROADMAP.md` is the controlling roadmap for when these layers may move from design to build. The current repository should treat this file as ecosystem context, not as permission to implement portals.
+
+## Current Build Boundary
+
+The only production ecosystem pieces today are the private-launch MVP loop, follow-up requests, and basic founder alert visibility. Portals, subscriptions, partner marketplace, multi-tenancy, and CRM remain design-only.

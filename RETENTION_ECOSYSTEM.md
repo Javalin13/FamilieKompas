@@ -27,3 +27,7 @@ Long-term archive, privacy review, deletion/export reminder.
 ## Principle
 
 Retention grows from trust and usefulness, not lock-in.
+
+## Convergence Boundary
+
+Retention must not drive premature accounts or subscriptions. The next validated step is better follow-up handling after value is delivered.

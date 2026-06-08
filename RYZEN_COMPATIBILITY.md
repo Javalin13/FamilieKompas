@@ -18,3 +18,7 @@ No raw personal data. No identifiable stories. No unreviewed sensitive material.
 ## Current Status
 
 Compatibility documented only. No Ryzen implementation.
+
+## Convergence Boundary
+
+Ryzen compatibility must not create pressure to move personal data upward. Any future intelligence flow must be aggregated, non-personal, and founder-reviewed.

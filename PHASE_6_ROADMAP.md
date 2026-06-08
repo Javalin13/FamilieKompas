@@ -1,5 +1,9 @@
 # Phase 6 Roadmap
 
+## Status
+
+This file remains a concise roadmap note. `PHASE_6_CONVERGENCE_ROADMAP.md` is now the controlling Phase 6 sequence.
+
 ## Recommended Sequence
 
 1. Validate follow-up demand.
@@ -22,3 +26,7 @@
 ## Recommended Phase 7 Scope
 
 Private beta continuity: improve follow-up handling, founder review workflow, and manual referral preparation before adding accounts or payments.
+
+## Phase 6 Discipline Update
+
+Phase 6 should focus on design-system foundation, Hermes architecture preparation, private beta refinement, and founder workflow clarity. It should not implement accounts, payments, portals, marketplace, CRM, multi-tenant infrastructure, or production Hermes.

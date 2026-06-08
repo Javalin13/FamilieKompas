@@ -15,3 +15,7 @@ Support community organizations and non-profits that coordinate family help.
 ## Boundary
 
 Volunteer workflows must include role limits, safeguarding rules, and escalation pathways.
+
+## Convergence Boundary
+
+Association tooling should remain later-stage. Manual coordination and safeguarding protocols must be validated before productizing volunteer or community workflows.

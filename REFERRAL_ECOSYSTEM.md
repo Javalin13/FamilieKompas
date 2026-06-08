@@ -17,3 +17,7 @@ Future referrals should include consent, summary, urgency, themes, preferred con
 ## Boundaries
 
 No referral should happen without informed consent. Emergency concerns follow safety protocols first.
+
+## Convergence Boundary
+
+Referral infrastructure should start manually. Build software only after the founder can name repeated referral categories, consent language, partner handoff needs, and outcome tracking requirements from real cases.

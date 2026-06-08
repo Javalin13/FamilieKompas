@@ -94,3 +94,7 @@ The following remain outside the MVP:
 - account-based learning
 - automated cross-case training
 - personal user memory
+
+## Phase 6 Convergence Boundary
+
+This document describes future knowledge-continuity readiness only. During Phase 6, no Hermes integration, Ryzen integration, ARC infrastructure, automated memory federation, or knowledge synchronization should be implemented.

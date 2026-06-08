@@ -49,3 +49,7 @@ No raw conversations, personal profiles, or identifiable family situations shoul
 - ARC infrastructure
 - memory federation
 - knowledge synchronization
+
+## Phase 6 Convergence Boundary
+
+`HERMES_INTEGRATION_PATH.md` is the controlling Hermes implementation path. `PHASE_6_CONVERGENCE_ROADMAP.md` is the controlling sequence. This document remains a compatibility note and should not be used to justify implementing Hermes, Ryzen, ARC infrastructure, or knowledge synchronization during Phase 6.
